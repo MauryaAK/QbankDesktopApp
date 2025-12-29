@@ -231,6 +231,8 @@ import { LoginResultCode, verifyLoginResult } from "../services/auth";
 import { createLoginResultHandlers } from "../services/auth/loginResult.handlers";
 import { useDeviceFingerprint } from "../hooks/useDeviceFingerprint";
 import { useAppDispatch } from "../hooks/reduxHooks";
+import { FiPower } from "react-icons/fi";
+import { exitApp } from "../utils/tauri";
 
 /* ================= TYPES ================= */
 
@@ -354,6 +356,7 @@ const Login: React.FC = () => {
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
+        
       >
         <div className="flex-1 hidden lg:flex mt-52 ml-28 px-24">
           <h1 className="text-3xl font-semibold text-black leading-tight">
@@ -361,8 +364,16 @@ const Login: React.FC = () => {
             Designer Application
           </h1>
         </div>
+        <div onClick={exitApp} className="flex-1 absolute top-10 right-20 hidden lg:flex items-center gap-2 cursor-pointer">
+          <div className="w-8 h-8 flex items-center justify-center rounded-full border border-black">
+            <FiPower className="text-black text-sm" />
+          </div>
 
-        <div className="w-full lg:w-[350px] flex mt-32 justify-center mr-48 bg-transparent">
+          <h1 className="text-sm font-semibold text-black leading-tight">
+            Exit
+          </h1>
+        </div>
+        <div className="w-full lg:w-[350px] flex mt-32 justify-center mr-[13%] bg-transparent">
           <div className="w-full max-w-md p-8">
             <h2 className="text-2xl font-semibold text-black mb-6">
               Login

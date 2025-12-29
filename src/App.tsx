@@ -264,15 +264,15 @@ function App() {
     onSuccess: (data: any) => {
       if (data) {
         if (data.errorMessage !== "Device Fingerprint Already Exists.") {
-          showAlert({
-            title: "Machine Activation Required",
-            message: data.errorMessage,
-            variant: "error",
-            onClose: () => {
-              hideAlert();
-              exitApp();
-            },
-          });
+            // showAlert({
+            //   title: "Machine Activation Required",
+            //   message: data.errorMessage,
+            //   variant: "error",
+            //   onClose: () => {
+            //     hideAlert();
+            //     exitApp();
+            //   },
+            // });
         }
       }
     },
