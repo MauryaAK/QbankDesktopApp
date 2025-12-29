@@ -140,11 +140,19 @@
 }
 
 body {
-    background-image: url("./assets/bgImage.png");
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
-
     overflow: hidden;
     /* desktop app – no scroll */
+}
+
+/* DEFAULT BG */
+body.bg-default {
+    background-image: url("./assets/bgImage.png");
+}
+
+/* ADMIN BG */
+body.bg-admin {
+    background-image: url("./assets/adminBg.png");
 }

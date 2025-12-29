@@ -230,6 +230,7 @@ import ProtectedRoute from "./routes";
 import { useSelector } from "react-redux";
 import { RootState } from "./store/rootReducer";
 import { exitApp } from "./utils/tauri";
+import { setBodyBackground } from "./store/setBodyBackground";
 
 interface Payload {
   deviceFingerprint: string;
@@ -281,6 +282,7 @@ function App() {
   });
 
   useEffect(() => {
+    setBodyBackground("bg-default");
     invoke("get_device_info").then((d) =>
       console.log("deviceInfo===>", d)
     );
