@@ -5,5 +5,8 @@ export interface AlertConfig {
   title: string;
   message: string;
   variant?: AlertVariant;
+  showActionButtons?: boolean;
+  onConfirm?: () => void;
+  onCancel?: () => void;
   onClose?: () => void;
 }

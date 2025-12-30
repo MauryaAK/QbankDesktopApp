@@ -43,9 +43,9 @@ export const verifyLoginResult = (res: any): LoginResult => {
         }
 
         // 🔒 Account locked
-        if (normalized.includes("locked")) {
+        if (normalized.includes("already logged in")) {
             return {
-                code: LoginResultCode.USER_LOCKED,
+                code: LoginResultCode.USER_ALREADY_LOGGED_IN,
                 message:
                     message || "Your account has been locked.",
             };

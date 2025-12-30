@@ -219,7 +219,7 @@
 
 
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { ActionButton } from "../components/common/Buttons";
@@ -326,22 +326,29 @@ const Login: React.FC = () => {
 
   /* ================= HANDLERS ================= */
 
-  const handleLogin = () => {
+  const handleLogin = (isOverride: boolean = false) => {
     setTouched({ loginId: true, password: true });
+
     if (!validate()) return;
     if (!payload) return;
-    loginMutation.mutate(payload);
+    loginMutation.mutate({
+      ...payload,
+      isOverride, // 🔥 single source of truth
+    });
   };
+
+
 
   const clearError = (field: keyof FormErrors) => {
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
+
   /* ================= UI ================= */
 
   return (
     <div className="min-h-screen bg-[#F3EADA] flex items-center justify-center px-6">
-      <AlertModal {...alert} onClose={hideAlert} />
+      <AlertModal onConfirm={() => handleLogin(true)} showActionButtons {...alert} onClose={hideAlert} />
       <div
         className="
           relative
@@ -356,7 +363,7 @@ const Login: React.FC = () => {
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
-        
+
       >
         <div className="flex-1 hidden lg:flex mt-52 ml-28 px-24">
           <h1 className="text-3xl font-semibold text-black leading-tight">
@@ -459,7 +466,7 @@ const Login: React.FC = () => {
                 label={loginMutation.isPending ? "Logging in..." : "Login"}
                 variant="primary"
                 className="w-full mt-2"
-                onClick={handleLogin}
+                onClick={() => { handleLogin(false) }}
               />
             </div>
           </div>

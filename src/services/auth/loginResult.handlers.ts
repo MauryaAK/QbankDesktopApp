@@ -33,10 +33,10 @@ export const createLoginResultHandlers = (
     });
   },
 
-  [LoginResultCode.USER_LOCKED]: (result) => {
+  [LoginResultCode.USER_ALREADY_LOGGED_IN]: (result) => {
     showAlert({
-      title: "Account Locked",
-      message: result.message,
+      title: "Already logged In",
+      message: `User already logged in on another machine.\n Machine Name:${apiRes.deviceName} \n Do you wish to continue`,
       variant: "error",
       onClose: hideAlert,
     });

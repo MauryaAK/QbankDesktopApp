@@ -1,6 +1,7 @@
 import axios from 'axios';
 import axiosInstance from './axiosInstance';
 import { format } from 'date-fns';
+import { getBaseUrl } from './getBaseUrl';
 
 // GET TOP DEALS
 // api.ts
@@ -14,7 +15,7 @@ export const getUserDetails = async (payload: {
 };
 
 export const logout = async (payload: { userId: number }) => {
-  const response = await axiosInstance.post("/Home/Logout", payload);
+  const response = await axios.post(getBaseUrl() + "/Home/Logout", payload);
   return response.data;
 };
 
@@ -44,15 +45,61 @@ export const getCandidateList = async () => {
 };
 
 
+// ------------------------------------admin apis ----------------------
+
+export const getRoleMaster = async () => {
+  return axiosInstance.get(`/Admin/GetRoleMaster`);
+};
+
+export const addEditRoleMaster = async (payload) => {
+  return axiosInstance.post("/Admin/AddEditRoleMaster", payload)
+};
 
 
+export const getUserMaster = async () => {
+  return axiosInstance.get(`/Admin/GetUserMaster`);
+};
+
+export const addEditUserMaster = async (payload) => {
+  return axiosInstance.post("/Admin/AddEditUserMaster", payload)
+};
+
+export const getAircraftType = async () => {
+  return axiosInstance.get(`/Admin/GetAircraftType`);
+};
+
+export const addEditAircraftType = async (payload) => {
+  return axiosInstance.post("/Admin/AddEditAircraftType", payload)
+};
+
+export const getAtaType = async () => {
+  return axiosInstance.get(`/Admin/GetAtaType`);
+};
+
+export const addEditAtaType = async (payload) => {
+  return axiosInstance.post("/Admin/AddEditAtaType", payload)
+};
 
 
+export const getDoDontRule = async () => {
+  return axiosInstance.get(`/Admin/GetDoDontRule`);
+};
 
+export const addEditDoDontRule = async (payload) => {
+  return axiosInstance.post("/Admin/AddEditDoDontRule", payload)
+};
 
+export const getDeviceMaster = async () => {
+  return axiosInstance.get(`/Admin/GetDeviceMaster`);
+};
 
+export const activateDevice = async (payload) => {
+  return axiosInstance.post("/Admin/ActivateDevice", payload)
+};
 
-
+export const updatePassword = async (payload) => {
+  return axiosInstance.post("/Admin/UpdatePassword", payload)
+};
 
 
 

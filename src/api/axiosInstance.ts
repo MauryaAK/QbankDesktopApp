@@ -1,6 +1,9 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { getBaseUrl } from "./getBaseUrl";
-import { store } from "../store/store";
+import { persistor, store } from "../store/store";
+import { alertService } from "../services/global/alertService";
+import { exitApp } from "../utils/tauri";
+import { resetAuth } from "../features/auth/authSlice";
 
 /* ================= BASE CONFIG ================= */
 
@@ -55,8 +58,20 @@ axiosInstance.interceptors.response.use(
 
     if (error.response) {
       const status = error.response.status;
-
-      if (status === 401) {
+      if (status === 401 || status === 403) {
+        alertService.show({
+          title: "Session Expired",
+          message: "Your session has expired. Please login again.",
+          variant: "error",
+          showActionButtons: true,
+          onConfirm: async () => {
+            store.dispatch(resetAuth());
+            await persistor.purge();
+            localStorage.clear();
+            sessionStorage.clear();
+          },
+          onClose: () => { store.dispatch(resetAuth()) },
+        });
         console.warn("Unauthorized – redirect to login");
       }
 

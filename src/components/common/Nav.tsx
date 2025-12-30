@@ -475,20 +475,14 @@ const BTNNavBar: React.FC = () => {
 
     const mutation = useMutation({ mutationFn: logout });
 
-    const handleLogout = () => {
-        mutation.mutate(
-            { userId },
-            {
-                onSuccess: async () => {
-                    dispatch(resetAuth());
-                    await persistor.purge();
-                    queryClient.clear();
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    navigate("/login", { replace: true });
-                },
-            }
-        );
+    const handleLogout = async () => {
+        mutation.mutate({ userId });
+        dispatch(resetAuth());
+        await persistor.purge();
+        queryClient.clear();
+        localStorage.clear();
+        sessionStorage.clear();
+        navigate("/login");
     };
 
     return (
