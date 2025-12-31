@@ -15,6 +15,8 @@ import searchIcon from "../../assets/searchIcon.svg";
 import { getCandidateList, getQuestionList } from "../../api/ApiCollection";
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { withRowId } from "../../utils/withRowId";
+import { exportExcel } from "../../utils/exporters/exportExcel";
+import { exportPdf } from "../../utils/exporters/exportPdf";
 
 /* ================= UTILS ================= */
 
@@ -207,8 +209,20 @@ const Dashboard = () => {
       {/* ===== FOOTER ===== */}
       <Footer
         exports={[
-          { type: "excel", onClick: () => console.log("Excel export") },
-          { type: "pdf", onClick: () => console.log("PDF export") },
+          {
+            type: "excel", onClick: () => exportExcel(
+              dashboardColumns,
+              filteredRows,
+              "Question_Bank"
+            ),
+          },
+          {
+            type: "pdf", onClick: () => exportPdf(
+              dashboardColumns,
+              filteredRows,
+              "Question Bank"
+            )
+          },
         ]}
         actions={[
           {

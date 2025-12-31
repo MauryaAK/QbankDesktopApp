@@ -13,21 +13,17 @@
 // import {
 //   HiChevronDown,
 //   HiChevronRight,
-//   HiPencil,
 //   HiArrowPath,
 //   HiFlag,
-// } from "react-icons/hi2";
-// import {FiEdit} from 'react-icons/fi'
-
-// import useIsMobile from "../hooks/useIsMobile";
-// import MobileTableCards from "./common/MobileTableCards";
-// import { styled } from "@mui/material/styles";
-
-// import {
 //   HiChevronLeft,
 //   HiChevronDoubleLeft,
 //   HiChevronDoubleRight,
 // } from "react-icons/hi2";
+// import { FiEdit } from "react-icons/fi";
+
+// import useIsMobile from "../hooks/useIsMobile";
+// import MobileTableCards from "./common/MobileTableCards";
+// import { styled } from "@mui/material/styles";
 // import ToggleRadio from "./common/ToggleRadio";
 
 // /* ================= TOOLTIP ================= */
@@ -66,8 +62,6 @@
 //   setSearch: (value: string) => void;
 // }
 
-// type ActionType = "edit" | "refresh" | "radio";
-
 // interface ActionConfig {
 //   edit?: boolean;
 //   refresh?: boolean;
@@ -81,7 +75,7 @@
 //   actionConfig?: ActionConfig;
 
 //   isExpandable?: boolean;
-//   selectedRowId?: any,
+//   selectedRowId?: any;
 //   renderExpandedRow?: (row: any) => React.ReactNode;
 //   showExpandedColumn?: number[];
 
@@ -91,9 +85,6 @@
 //   onRefreshClick?: (row: any) => void;
 //   onRadioSelect?: (row: any) => void;
 // }
-
-// /* ================= CONSTANTS ================= */
-
 
 // /* ================= COMPONENT ================= */
 
@@ -112,32 +103,33 @@
 //       onEditClick,
 //       onRefreshClick,
 //       onRadioSelect,
-//       actionConfig
+//       actionConfig,
 //     },
 //     ref
 //   ) => {
 //     const isMobile = useIsMobile();
 //     const apiRef = useGridApiRef();
+
 //     const [expandedRowId, setExpandedRowId] = useState<
 //       string | number | null
 //     >(null);
 
-//     /* 🔑 expose MUI search */
 //     useImperativeHandle(ref, () => ({
 //       setSearch(value: string) {
-//         apiRef.current.setQuickFilterValues(
-//           value ? [value] : []
-//         );
+//         apiRef.current.setQuickFilterValues(value ? [value] : []);
 //       },
 //     }));
+
 //     const ROW_HEIGHT = 32;
 //     const HEADER_HEIGHT = 30;
 //     const DEFAULT_PAGE_SIZE = 100;
 
-//     const [pageSize, setPageSize] = useState(
+//     const [pageSize] = useState(
 //       visibleRows ?? DEFAULT_PAGE_SIZE
 //     );
-//     const getRowId = (row: any) => row.sno;
+
+//     /* 🔑 USE id EVERYWHERE */
+//     const getRowId = (row: any) => row.id;
 
 //     const computedRows = useMemo(() => {
 //       if (!isExpandable || expandedRowId == null) return rows;
@@ -148,7 +140,7 @@
 //       if (index === -1) return rows;
 
 //       const expandedRow = {
-//         sno: `${expandedRowId}__expanded`,
+//         id: `${expandedRowId}__expanded`,
 //         __expanded: true,
 //         parentRow: rows[index],
 //       };
@@ -160,71 +152,66 @@
 
 //     const actionColumns: GridColDef[] = includeActionColumn
 //       ? [
-//         {
-//           field: "__status",
-//           headerName: "Status",
-//           width: 90,
-//           renderCell: (params) =>
-//             params.row?.__expanded ? null : (
-//               <button
-//                 onClick={(e) => {
-//                   e.stopPropagation();
-//                   onStatusClick?.(params.row);
-//                 }}
-//                 className="px-2 py-[2px] text-xs rounded-md border bg-green-400"
-//               >
-//                 Active
-//               </button>
-//             ),
-//         },
-//         {
-//           field: "__action",
-//           headerName: "Action",
-//           width: 150,
-//           renderCell: (params) =>
-//   params.row?.__expanded ? null : (
-//     <div className="flex gap-6 items-center">
-      
-//       {/* EDIT */}
-//       {actionConfig?.edit && (
-//         <button
-//           onClick={(e) => {
-//             e.stopPropagation();
-//             onEditClick?.(params.row);
-//           }}
-//         >
-//           <FiEdit size={20} />
-//         </button>
-//       )}
+//           {
+//             field: "__status",
+//             headerName: "Status",
+//             width: 90,
+//             renderCell: (params) =>
+//               params.row?.__expanded ? null : (
+//                 <button
+//                   onClick={(e) => {
+//                     e.stopPropagation();
+//                     onStatusClick?.(params.row);
+//                   }}
+//                   className="px-2 py-[2px] text-xs rounded-md border bg-green-400"
+//                 >
+//                   Active
+//                 </button>
+//               ),
+//           },
+//           {
+//             field: "__action",
+//             headerName: "Action",
+//             width: 150,
+//             renderCell: (params) =>
+//               params.row?.__expanded ? null : (
+//                 <div className="flex gap-6 items-center">
+//                   {actionConfig?.edit && (
+//                     <button
+//                       onClick={(e) => {
+//                         e.stopPropagation();
+//                         onEditClick?.(params.row);
+//                       }}
+//                     >
+//                       <FiEdit size={20} />
+//                     </button>
+//                   )}
 
-//       {/* REFRESH */}
-//       {actionConfig?.refresh && (
-//         <button
-//           onClick={(e) => {
-//             e.stopPropagation();
-//             onRefreshClick?.(params.row);
-//           }}
-//         >
-//           <HiArrowPath size={20} />
-//         </button>
-//       )}
+//                   {actionConfig?.refresh && (
+//                     <button
+//                       onClick={(e) => {
+//                         e.stopPropagation();
+//                         onRefreshClick?.(params.row);
+//                       }}
+//                     >
+//                       <HiArrowPath size={20} />
+//                     </button>
+//                   )}
 
-//       {/* RADIO */}
-//       {actionConfig?.radio && (
-//         <ToggleRadio
-//           size="xs"
-//           checked={selectedRowId === params.row.id}
-//           icon={<HiFlag size={12} />}
-//           onChange={() => {
-//             onRadioSelect?.(params.row);
-//           }}
-//         />
-//       )}
-//     </div>
-//   ),
-
-//         },
-//       ]
+//                   {actionConfig?.radio && (
+//                     <ToggleRadio
+//                       size="xs"
+//                       checked={selectedRowId === params.row.id}
+//                       icon={<HiFlag size={12} />}
+//                       onChange={() => {
+//                         onRadioSelect?.(params.row);
+//                       }}
+//                     />
+//                   )}
+//                 </div>
+//               ),
+//           },
+//         ]
 //       : [];
 
 //     const mergedColumns = useMemo<GridColDef[]>(() => {
@@ -269,9 +256,7 @@
 //               <button
 //                 onClick={(e) => {
 //                   e.stopPropagation();
-//                   setExpandedRowId(
-//                     isOpen ? null : rowId
-//                   );
+//                   setExpandedRowId(isOpen ? null : rowId);
 //                 }}
 //               >
 //                 {isOpen ? (
@@ -303,7 +288,6 @@
 //     }
 
 //     return (
-
 //       <div className="w-full h-full rounded-2xl p-[10px] shadow-sm flex flex-col overflow-hidden">
 //         <div className="flex-1 overflow-hidden">
 //           <DataGrid
@@ -330,70 +314,9 @@
 //               height: "100%",
 //               border: "none",
 //               background: "transparent",
-
-//               /* ===== HEADER ===== */
-//               "& .MuiDataGrid-columnHeaders": {
-//                 background: "rgba(255,255,255,0.85)",
-//                 borderRadius: "5px",
-//                 marginBottom: "4px",
-//                 minHeight: HEADER_HEIGHT,
-//                 boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-//               },
-//               "& .MuiDataGrid-columnHeaderTitle": {
-//                 fontWeight: 600,
-//               },
-
-//               /* ===== ROW ===== */
-//               "& .MuiDataGrid-row": {
-//                 background: "rgba(255,255,255,0.55)",
-//                 borderRadius: "10px",
-//                 marginBottom: "6px",
-//                 boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-//                 maxWidth: "100%",
-//               },
-
-//               "& .MuiDataGrid-row:hover": {
-//                 background: "rgba(255,255,255,0.75)",
-//               },
-
-//               /* ===== CELL ===== */
-//               "& .MuiDataGrid-cell": {
-//                 borderBottom: "none",
-//                 whiteSpace: "nowrap",
-//                 overflow: "hidden",
-//                 textOverflow: "ellipsis",
-//               },
-
-//               /* ===== EXPANDED ROW ===== */
-//               "& .MuiDataGrid-row.expanded-row": {
-//                 alignItems: "stretch",
-//               },
-
-//               "& .MuiDataGrid-row.expanded-row .MuiDataGrid-cell": {
-//                 padding: 0,
-//                 overflowX: "hidden",
-//               },
-
-//               "& .MuiDataGrid-main": {
-//                 overflowX: "hidden",
-//               },
-
-//               "& .MuiDataGrid-virtualScroller": {
-//                 overflowX: "hidden",
-//               },
-
-//               /* ===== SCROLLBAR ===== */
-//               "& .MuiDataGrid-virtualScroller::-webkit-scrollbar": {
-//                 width: "4px",
-//               },
-//               "& .MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb": {
-//                 backgroundColor: "#DA0E29",
-//                 borderRadius: "6px",
-//               },
 //             }}
 //           />
 //         </div>
-
 
 //         {/* ================= PAGINATION ================= */}
 //         <div className="flex items-center justify-between px-2 pt-2 text-xs shrink-0">
@@ -401,10 +324,6 @@
 //             Show
 //             <select
 //               value={pageSize}
-//               onChange={(e) => {
-//                 // setPageSize(Number(e.target.value));
-//                 // setPage(0);
-//               }}
 //               className="rounded-md border px-2 py-1 bg-white"
 //             >
 //               {[100, 150, 200].map((n) => (
@@ -427,11 +346,15 @@
 //     );
 //   }
 // );
+
 // const PaginationButton = ({ icon, disabled }: any) => (
 //   <button
 //     disabled={disabled}
-//     className={`p-2 rounded-md border text-sm ${disabled ? "opacity-40 cursor-not-allowed" : "hover:bg-white"
-//       }`}
+//     className={`p-2 rounded-md border text-sm ${
+//       disabled
+//         ? "opacity-40 cursor-not-allowed"
+//         : "hover:bg-white"
+//     }`}
 //   >
 //     {icon}
 //   </button>
@@ -561,6 +484,24 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
     const isMobile = useIsMobile();
     const apiRef = useGridApiRef();
 
+    const ROW_HEIGHT = 32;
+    const HEADER_HEIGHT = 30;
+    const DEFAULT_PAGE_SIZE = 50;
+
+    /* ================= PAGINATION STATE ================= */
+    const [pageSize, setPageSize] = useState(
+      visibleRows ?? DEFAULT_PAGE_SIZE
+    );
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalPages = Math.ceil(rows.length / pageSize);
+
+    const paginatedBaseRows = useMemo(() => {
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      return rows.slice(start, end);
+    }, [rows, currentPage, pageSize]);
+
     const [expandedRowId, setExpandedRowId] = useState<
       string | number | null
     >(null);
@@ -571,98 +512,93 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
       },
     }));
 
-    const ROW_HEIGHT = 32;
-    const HEADER_HEIGHT = 30;
-    const DEFAULT_PAGE_SIZE = 100;
-
-    const [pageSize] = useState(
-      visibleRows ?? DEFAULT_PAGE_SIZE
-    );
-
     /* 🔑 USE id EVERYWHERE */
     const getRowId = (row: any) => row.id;
 
     const computedRows = useMemo(() => {
-      if (!isExpandable || expandedRowId == null) return rows;
+      if (!isExpandable || expandedRowId == null)
+        return paginatedBaseRows;
 
-      const index = rows.findIndex(
+      const index = paginatedBaseRows.findIndex(
         (r) => getRowId(r) === expandedRowId
       );
-      if (index === -1) return rows;
+      if (index === -1) return paginatedBaseRows;
 
       const expandedRow = {
         id: `${expandedRowId}__expanded`,
         __expanded: true,
-        parentRow: rows[index],
+        parentRow: paginatedBaseRows[index],
       };
 
-      const copy = [...rows];
+      const copy = [...paginatedBaseRows];
       copy.splice(index + 1, 0, expandedRow);
       return copy;
-    }, [rows, expandedRowId, isExpandable]);
+    }, [paginatedBaseRows, expandedRowId, isExpandable]);
+
+    /* ================= ACTION COLUMNS ================= */
 
     const actionColumns: GridColDef[] = includeActionColumn
       ? [
-          {
-            field: "__status",
-            headerName: "Status",
-            width: 90,
-            renderCell: (params) =>
-              params.row?.__expanded ? null : (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onStatusClick?.(params.row);
-                  }}
-                  className="px-2 py-[2px] text-xs rounded-md border bg-green-400"
-                >
-                  Active
-                </button>
-              ),
-          },
-          {
-            field: "__action",
-            headerName: "Action",
-            width: 150,
-            renderCell: (params) =>
-              params.row?.__expanded ? null : (
-                <div className="flex gap-6 items-center">
-                  {actionConfig?.edit && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEditClick?.(params.row);
-                      }}
-                    >
-                      <FiEdit size={20} />
-                    </button>
-                  )}
+        {
+          field: "__status",
+          headerName: "Status",
+          width: 90,
+          renderCell: (params) =>
+            params.row?.__expanded ? null : (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onStatusClick?.(params.row);
+                }}
+                className="px-2 py-[2px] text-xs rounded-md border bg-green-400"
+              >
+                Active
+              </button>
+            ),
+        },
+        {
+          field: "__action",
+          headerName: "Action",
+          width: 150,
+          renderCell: (params) =>
+            params.row?.__expanded ? null : (
+              <div className="flex gap-6 items-center">
+                {actionConfig?.edit && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditClick?.(params.row);
+                    }}
+                  >
+                    <FiEdit size={20} />
+                  </button>
+                )}
 
-                  {actionConfig?.refresh && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRefreshClick?.(params.row);
-                      }}
-                    >
-                      <HiArrowPath size={20} />
-                    </button>
-                  )}
+                {actionConfig?.refresh && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRefreshClick?.(params.row);
+                    }}
+                  >
+                    <HiArrowPath size={20} />
+                  </button>
+                )}
 
-                  {actionConfig?.radio && (
-                    <ToggleRadio
-                      size="xs"
-                      checked={selectedRowId === params.row.id}
-                      icon={<HiFlag size={12} />}
-                      onChange={() => {
-                        onRadioSelect?.(params.row);
-                      }}
-                    />
-                  )}
-                </div>
-              ),
-          },
-        ]
+                {actionConfig?.radio && (
+                  <ToggleRadio
+                    size="xs"
+                    checked={selectedRowId === params.row.id}
+                    icon={<HiFlag size={12} />}
+                    onChange={() => {
+                      onRadioSelect?.(params.row);
+                    }}
+                  />
+                )}
+              </div>
+            ),
+        },
+      ]
       : [];
 
     const mergedColumns = useMemo<GridColDef[]>(() => {
@@ -769,46 +705,129 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
           />
         </div>
 
-        {/* ================= PAGINATION ================= */}
-        <div className="flex items-center justify-between px-2 pt-2 text-xs shrink-0">
+
+        <div className="flex items-center justify-between px-3 pt-3 text-xs shrink-0 border-t border-gray-200">
           <div className="flex items-center gap-2 text-gray-600">
-            Show
-            <select
-              value={pageSize}
-              className="rounded-md border px-2 py-1 bg-white"
-            >
-              {[100, 150, 200].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-            records
+            <span className="text-xs font-medium">Show</span>
+
+            <div className="relative">
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="
+        appearance-none
+        h-8
+        min-w-[70px]
+        border
+        border-gray-300
+        bg-white
+        px-3
+        pr-8
+        text-sm
+        font-semibold
+        text-gray-800
+        shadow-sm
+        cursor-pointer
+        focus:outline-none
+        focus:ring-1
+        focus:ring-gray-400
+      "
+              >
+                {[50, 75, 100].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+
+              {/* caret */}
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-xs">
+                ▼
+              </span>
+            </div>
           </div>
 
-          <div className="flex gap-1">
-            <PaginationButton icon={<HiChevronDoubleLeft />} disabled />
-            <PaginationButton icon={<HiChevronLeft />} disabled />
-            <PaginationButton icon={<HiChevronRight />} disabled />
-            <PaginationButton icon={<HiChevronDoubleRight />} disabled />
+
+          {/* RIGHT: RECORD INFO + PAGINATION */}
+          <div className="flex items-center gap-4">
+            <span className="text-gray-600 font-medium whitespace-nowrap">
+              Showing{" "}
+              <span className="text-gray-900 font-semibold">
+                {(currentPage - 1) * pageSize + 1}
+              </span>
+              –
+              <span className="text-gray-900 font-semibold">
+                {Math.min(currentPage * pageSize, rows.length)}
+              </span>{" "}
+              of{" "}
+              <span className="text-gray-900 font-bold">
+                {rows.length}
+              </span>{" "}
+              records
+            </span>
+
+
+            <div className="flex gap-1">
+              <PaginationButton
+                icon={<HiChevronDoubleLeft />}
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(1)}
+              />
+              <PaginationButton
+                icon={<HiChevronLeft />}
+                disabled={currentPage === 1}
+                onClick={() =>
+                  setCurrentPage((p) => Math.max(1, p - 1))
+                }
+              />
+              <PaginationButton
+                icon={<HiChevronRight />}
+                disabled={currentPage === totalPages}
+                onClick={() =>
+                  setCurrentPage((p) =>
+                    Math.min(totalPages, p + 1)
+                  )
+                }
+              />
+              <PaginationButton
+                icon={<HiChevronDoubleRight />}
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(totalPages)}
+              />
+            </div>
           </div>
         </div>
+
       </div>
     );
   }
 );
 
-const PaginationButton = ({ icon, disabled }: any) => (
+const PaginationButton = ({ icon, disabled, onClick }: any) => (
   <button
     disabled={disabled}
-    className={`p-2 rounded-md border text-sm ${
-      disabled
-        ? "opacity-40 cursor-not-allowed"
-        : "hover:bg-white"
-    }`}
+    onClick={onClick}
+    className={`
+      h-8
+      w-8
+      flex
+      items-center rounded-lg
+      justify-center
+      border
+      text-gray-700
+      transition-all
+      ${disabled
+        ? "border-gray-200 bg-gray-100 opacity-50 cursor-not-allowed"
+        : "border-gray-300 bg-white hover:bg-gray-100 hover:border-gray-400"
+      }
+    `}
   >
     {icon}
   </button>
 );
+
 
 export default DataTable;

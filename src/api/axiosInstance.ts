@@ -7,6 +7,13 @@ import { resetAuth } from "../features/auth/authSlice";
 
 /* ================= BASE CONFIG ================= */
 
+
+const handleSessionExpired = async () => {
+  store.dispatch({ type: "auth/resetAuth" });
+  localStorage.clear();
+  sessionStorage.clear();
+};
+
 const axiosInstance = axios.create({
   baseURL: getBaseUrl(),
   timeout: 45000,
@@ -14,6 +21,7 @@ const axiosInstance = axios.create({
     "Content-Type": "application/json",
   },
 });
+
 
 /* ================= REQUEST INTERCEPTOR ================= */
 
@@ -63,15 +71,12 @@ axiosInstance.interceptors.response.use(
           title: "Session Expired",
           message: "Your session has expired. Please login again.",
           variant: "error",
-          showActionButtons: true,
-          onConfirm: async () => {
-            store.dispatch(resetAuth());
-            await persistor.purge();
-            localStorage.clear();
-            sessionStorage.clear();
-          },
-          onClose: () => { store.dispatch(resetAuth()) },
+          showActionButtons: false,
+
+          onConfirm: handleSessionExpired,
+          onClose: handleSessionExpired,
         });
+
         console.warn("Unauthorized – redirect to login");
       }
 

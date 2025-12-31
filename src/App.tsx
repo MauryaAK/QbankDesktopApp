@@ -229,8 +229,7 @@ import { useDeviceFingerprint } from "./hooks/useDeviceFingerprint";
 import ProtectedRoute from "./routes";
 import { useSelector } from "react-redux";
 import { RootState } from "./store/rootReducer";
-import { exitApp } from "./utils/tauri";
-import { setBodyBackground } from "./store/setBodyBackground";
+import { useAutoBodyBackground } from "./hooks/useBodyBackground";
 
 interface Payload {
   deviceFingerprint: string;
@@ -264,15 +263,15 @@ function App() {
     onSuccess: (data: any) => {
       if (data) {
         if (data.errorMessage !== "Device Fingerprint Already Exists.") {
-            // showAlert({
-            //   title: "Machine Activation Required",
-            //   message: data.errorMessage,
-            //   variant: "error",
-            //   onClose: () => {
-            //     hideAlert();
-            //     exitApp();
-            //   },
-            // });
+          // showAlert({
+          //   title: "Machine Activation Required",
+          //   message: data.errorMessage,
+          //   variant: "error",
+          //   onClose: () => {
+          //     hideAlert();
+          //     exitApp();
+          //   },
+          // });
         }
       }
     },
@@ -282,7 +281,6 @@ function App() {
   });
 
   useEffect(() => {
-    setBodyBackground("bg-default");
     invoke("get_device_info").then((d) =>
       console.log("deviceInfo===>", d)
     );
@@ -295,16 +293,19 @@ function App() {
   }, [payload]);
 
   /* ===== APP LAYOUT ===== */
-  const Layout = () => (
-    <div>
-      <ToasterProvider />
-      <ScrollRestoration />
-      <div className="h-screen ">
-        <BTNNavBar />
-        <Outlet />
+  const Layout = () => {
+    useAutoBodyBackground();
+    return (
+      <div>
+        <ToasterProvider />
+        <ScrollRestoration />
+        <div className="h-screen ">
+          <BTNNavBar />
+          <Outlet />
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   /* ===== ROUTER ===== */
   const router = createBrowserRouter([

@@ -1,6 +1,6 @@
 import { AlertConfig } from "../../components/common/AlertModal/alert.types";
 
-type ShowAlertFn = (config: Omit<AlertConfig, "open">) => void;
+type ShowAlertFn = (config: AlertConfig) => void;
 
 let showAlertRef: ShowAlertFn | null = null;
 
@@ -10,8 +10,14 @@ export const alertService = {
   },
 
   show(config: Omit<AlertConfig, "open">) {
-    if (showAlertRef) {
-      showAlertRef(config);
-    }
+    showAlertRef?.({ ...config, open: true });
+  },
+
+  hide() {
+    showAlertRef?.({
+      open: false,
+      title: "",
+      message: "",
+    });
   },
 };
