@@ -1,64 +1,49 @@
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import * as XLSX from "xlsx-js-style";
 import { GridColDef } from "@mui/x-data-grid";
 import { normalizeForExport } from "./exportHelpers";
+import { saveWithPicker } from "./saveWithPicker";
 
-export const exportExcel = (
+export const exportExcel = async (
   columns: GridColDef[],
   rows: any[],
-  fileName: string
+  title: string,
+  userName: string
 ) => {
-  setTimeout(() => {
-    const { headers, data } =
-      normalizeForExport(columns, rows);
+  const { headers, data } = normalizeForExport(columns, rows);
 
-    const sheetData = [headers, ...data];
-    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+  const sheetData = [headers, ...data];
+  const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
 
-    // ✅ HEADER BACKGROUND COLOR
-    headers.forEach((_, colIndex) => {
-      const cellRef = XLSX.utils.encode_cell({
-        r: 0,
-        c: colIndex,
-      });
-      if (!worksheet[cellRef]) return;
+  headers.forEach((_, colIndex) => {
+    const cellRef = XLSX.utils.encode_cell({ r: 0, c: colIndex });
+    worksheet[cellRef].s = {
+      fill: { fgColor: { rgb: "DA0E29" } },
+      font: { bold: true, color: { rgb: "FFFFFF" } },
+      alignment: { horizontal: "center" },
+    };
+  });
 
-      worksheet[cellRef].s = {
-        fill: {
-          fgColor: { rgb: "D9D9D9" }, // light grey
-        },
-        font: {
-          bold: true,
-        },
-        alignment: {
-          horizontal: "center",
-        },
-      };
-    });
+  worksheet["!cols"] = headers.map(() => ({ wch: 22 }));
 
-    worksheet["!cols"] = headers.map(() => ({
-      wch: 22,
-    }));
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Data"
-    );
+  const buffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
 
-    const buffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-      cellStyles: true, // ⚠️ ONLY header uses styles
-    });
+  const blob = new Blob([buffer], {
+    type:
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
 
-    saveAs(
-      new Blob([buffer], {
-        type:
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      }),
-      `${fileName}.xlsx`
-    );
-  }, 0);
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const fileName = `${title}_${userName}_${timestamp}.xlsx`;
+
+  await saveWithPicker(
+    blob,
+    fileName,
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
 };

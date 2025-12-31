@@ -42,16 +42,14 @@ const dashboardColumns: GridColDef[] = [
     width: 110,
   },
   {
-    field: "ata",
+    field: "ataCode",
     headerName: "ATA",
     width: 90,
-    valueGetter: (params) => params.row.ataCode ?? "-", // ✅ mapped safely
   },
   {
     field: "sno",
     headerName: "Question ID",
     width: 120,
-    valueGetter: (params) => params.row.sno ?? "-", // ✅ fallback
   },
   {
     field: "bookTitle",

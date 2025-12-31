@@ -209,21 +209,30 @@ const Dashboard = () => {
       {/* ===== FOOTER ===== */}
       <Footer
         exports={[
-          {
-            type: "excel", onClick: () => exportExcel(
-              dashboardColumns,
-              filteredRows,
-              "Question_Bank"
-            ),
-          },
-          {
-            type: "pdf", onClick: () => exportPdf(
-              dashboardColumns,
-              filteredRows,
-              "Question Bank"
-            )
-          },
-        ]}
+  {
+    type: "excel",
+    onClick: async () => {
+      await exportExcel(
+        dashboardColumns,
+        filteredRows,
+        "Question_Bank",
+        "ajay"
+      );
+    },
+  },
+  {
+    type: "pdf",
+    onClick: async () => {
+      await exportPdf(
+        dashboardColumns,
+        filteredRows,
+        "Question_Bank",
+        "ajay"
+      );
+    },
+  },
+]}
+
         actions={[
           {
             type: "approve",

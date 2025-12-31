@@ -2,57 +2,64 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { GridColDef } from "@mui/x-data-grid";
 import { normalizeForExport } from "./exportHelpers";
+import { saveWithPicker } from "./saveWithPicker";
 
-export const exportPdf = (
+export const exportPdf = async (
   columns: GridColDef[],
   rows: any[],
-  title: string
+  title: string,
+  userName: string
 ) => {
-  setTimeout(() => {
-    const { headers, data } =
-      normalizeForExport(columns, rows);
+  const { headers, data } = normalizeForExport(columns, rows);
 
-    if (data.length > 1000) {
-      alert("Please filter data (max 1000 rows)");
-      return;
-    }
+  if (data.length > 1000) {
+    alert("Please filter data (max 1000 rows)");
+    return;
+  }
 
-    const doc = new jsPDF({
-      orientation: "landscape",
-      unit: "pt",
-      format: "a4",
-      compress: false, // ✅ better quality
-    });
+  const doc = new jsPDF({
+    orientation: "landscape",
+    unit: "pt",
+    format: "a4",
+    compress: true,
+  });
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(14);
-    doc.text(title, 40, 30);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text(title, 40, 30);
 
-    autoTable(doc, {
-      startY: 50,
-      head: [headers],
-      body: data,
+  autoTable(doc, {
+    startY: 50,
+    head: [headers],
+    body: data,
+    showHead: "firstPage",
 
-      // ❌ STOP HEADER REPEAT
-      showHead: "firstPage",
+    styles: {
+      font: "helvetica",
+      fontSize: 10,
+      cellPadding: 5,
+      textColor: [0, 0, 0],
+    },
 
-      styles: {
-        font: "helvetica",
-        fontSize: 10, // 🔥 improved clarity
-        cellPadding: 5,
-        lineColor: [220, 220, 220],
-        lineWidth: 0.5,
-      },
-      headStyles: {
-        fillColor: [230, 230, 230],
-        textColor: 20,
-        fontStyle: "bold",
-      },
-      alternateRowStyles: {
-        fillColor: [248, 248, 248],
-      },
-    });
+    headStyles: {
+      fillColor: [218, 14, 41],
+      textColor: [255, 255, 255],
+      fontStyle: "bold",
+    },
 
-    doc.save(`${title}.pdf`);
-  }, 0);
+    alternateRowStyles: {
+      fillColor: [248, 248, 248],
+    },
+  });
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const fileName = `${title}_${userName}_${timestamp}.pdf`;
+
+  const blob = doc.output("blob");
+
+  await saveWithPicker(
+    blob,
+    fileName,
+    "application/pdf"
+  );
 };
