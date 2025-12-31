@@ -13,10 +13,34 @@ export const exportExcel = (
       normalizeForExport(columns, rows);
 
     const sheetData = [headers, ...data];
-
     const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-    const workbook = XLSX.utils.book_new();
 
+    // ✅ HEADER BACKGROUND COLOR
+    headers.forEach((_, colIndex) => {
+      const cellRef = XLSX.utils.encode_cell({
+        r: 0,
+        c: colIndex,
+      });
+      if (!worksheet[cellRef]) return;
+
+      worksheet[cellRef].s = {
+        fill: {
+          fgColor: { rgb: "D9D9D9" }, // light grey
+        },
+        font: {
+          bold: true,
+        },
+        alignment: {
+          horizontal: "center",
+        },
+      };
+    });
+
+    worksheet["!cols"] = headers.map(() => ({
+      wch: 22,
+    }));
+
+    const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(
       workbook,
       worksheet,
@@ -25,7 +49,8 @@ export const exportExcel = (
 
     const buffer = XLSX.write(workbook, {
       bookType: "xlsx",
-      type: "array", // ✅ VERY IMPORTANT
+      type: "array",
+      cellStyles: true, // ⚠️ ONLY header uses styles
     });
 
     saveAs(

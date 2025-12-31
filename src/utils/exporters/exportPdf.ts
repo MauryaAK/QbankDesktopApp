@@ -12,7 +12,6 @@ export const exportPdf = (
     const { headers, data } =
       normalizeForExport(columns, rows);
 
-    // ❗ HARD LIMIT (prevents freeze)
     if (data.length > 1000) {
       alert("Please filter data (max 1000 rows)");
       return;
@@ -21,8 +20,11 @@ export const exportPdf = (
     const doc = new jsPDF({
       orientation: "landscape",
       unit: "pt",
+      format: "a4",
+      compress: false, // ✅ better quality
     });
 
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(14);
     doc.text(title, 40, 30);
 
@@ -30,17 +32,24 @@ export const exportPdf = (
       startY: 50,
       head: [headers],
       body: data,
+
+      // ❌ STOP HEADER REPEAT
+      showHead: "firstPage",
+
       styles: {
-        fontSize: 9,
-        cellPadding: 4,
+        font: "helvetica",
+        fontSize: 10, // 🔥 improved clarity
+        cellPadding: 5,
+        lineColor: [220, 220, 220],
+        lineWidth: 0.5,
       },
       headStyles: {
-        fillColor: [60, 60, 60],
-        textColor: 255,
+        fillColor: [230, 230, 230],
+        textColor: 20,
         fontStyle: "bold",
       },
       alternateRowStyles: {
-        fillColor: [245, 245, 245],
+        fillColor: [248, 248, 248],
       },
     });
 
