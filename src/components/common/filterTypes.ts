@@ -20,8 +20,12 @@ export interface InputFilterField extends BaseFilterField {
 export interface DateFilterField extends BaseFilterField {
   type: "date";
 }
+export interface BtnFilterField {
+  type: "btn";
+}
 
 export type FilterField =
   | SelectFilterField
   | InputFilterField
+  | BtnFilterField
   | DateFilterField;

@@ -55,8 +55,6 @@
 
 
 
-
-
 import React, { useEffect, useState } from "react";
 import FilterContainer from "../filters";
 import { SelectField } from "./SelectField";
@@ -67,20 +65,39 @@ import { FilterField } from "./filterTypes";
 interface FilterSectionProps {
   fields: FilterField[];
   onChange: (filters: Record<string, any>) => void;
+
+  /** Optional */
   initialValues?: Record<string, any>;
+  showActionButtons?: boolean;
+
+  /** Action callbacks */
+  onApply?: (filters: Record<string, any>) => void;
+
+  /** Button labels */
+  applyLabel?: string;
+  resetLabel?: string;
+
+  /** Button states */
+  applyDisabled?: boolean;
 }
 
 const FilterSection: React.FC<FilterSectionProps> = ({
   fields,
   onChange,
   initialValues = {},
+  showActionButtons = false,
+  onApply,
+  applyLabel = "Apply",
+  resetLabel = "Reset",
+  applyDisabled = false,
 }) => {
   const [filters, setFilters] = useState<Record<string, any>>(initialValues);
 
-  /* ===== EMIT FILTERS TO PARENT ===== */
+  /* ===== EMIT FILTERS TO PARENT (LIVE CHANGE) ===== */
   useEffect(() => {
     onChange(filters);
   }, [filters, onChange]);
+
 
   /* ===== FIELD RENDERER ===== */
   const renderField = (field: FilterField) => {
@@ -90,8 +107,8 @@ const FilterSection: React.FC<FilterSectionProps> = ({
           <SelectField
             key={field.key}
             label={field.label}
-            options={field.options}
-            value={filters[field.key] || null}
+            options={field.options || []}
+            value={filters[field.key] ?? null}
             onChange={(val) =>
               setFilters((prev) => ({ ...prev, [field.key]: val }))
             }
@@ -104,7 +121,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
             key={field.key}
             label={field.label}
             placeholder={field.placeholder}
-            value={filters[field.key] || ""}
+            value={filters[field.key] ?? ""}
             onChange={(val) =>
               setFilters((prev) => ({ ...prev, [field.key]: val }))
             }
@@ -116,21 +133,34 @@ const FilterSection: React.FC<FilterSectionProps> = ({
           <DateField
             key={field.key}
             label={field.label}
-            value={filters[field.key] || null}
+            value={filters[field.key] ?? null}
             onChange={(date) =>
               setFilters((prev) => ({ ...prev, [field.key]: date }))
             }
           />
         );
-
       default:
         return null;
     }
   };
 
   return (
-    <FilterContainer>
-      {fields.map((field) => renderField(field))}
+    <FilterContainer
+      actions={
+        showActionButtons && (
+
+
+          <button
+            disabled={applyDisabled}
+            onClick={() => onApply?.(filters)}
+            className="h-9 px-5 rounded-md bg-red-700 text-white hover:bg-red-800 disabled:opacity-50 text-sm"
+          >
+            {applyLabel}
+          </button>
+        )
+      }
+    >
+      {fields.map(renderField)}
     </FilterContainer>
   );
 };

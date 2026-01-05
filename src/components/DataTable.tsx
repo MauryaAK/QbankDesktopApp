@@ -675,7 +675,7 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
     }
 
     return (
-      <div className="w-full h-full rounded-2xl p-[10px] shadow-sm flex flex-col overflow-hidden">
+      <div className="w-full h-full rounded-2xl pt-[5px] px-[10px] shadow-sm flex flex-col overflow-hidden">
         <div className="flex-1 overflow-hidden">
           <DataGrid
             apiRef={apiRef}
@@ -697,16 +697,82 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
             getRowClassName={(params) =>
               params.row?.__expanded ? "expanded-row" : ""
             }
+            // sx={{
+            //   height: "100%",
+            //   border: "none",
+            //   background: "transparent",
+            // }}
+
             sx={{
               height: "100%",
               border: "none",
               background: "transparent",
+
+              /* ===== HEADER ===== */
+              "& .MuiDataGrid-columnHeaders": {
+                background: "rgba(255,255,255,0.85)",
+                borderRadius: "5px",
+                marginBottom: "4px",
+                minHeight: HEADER_HEIGHT,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+              },
+              "& .MuiDataGrid-columnHeaderTitle": {
+                fontWeight: 600,
+              },
+
+              /* ===== ROW ===== */
+              "& .MuiDataGrid-row": {
+                background: "rgba(255,255,255,0.55)",
+                borderRadius: "10px",
+                marginBottom: "6px",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+                maxWidth: "100%",
+              },
+
+              "& .MuiDataGrid-row:hover": {
+                background: "rgba(255,255,255,0.75)",
+              },
+
+              /* ===== CELL ===== */
+              "& .MuiDataGrid-cell": {
+                borderBottom: "none",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              },
+
+              /* ===== EXPANDED ROW ===== */
+              "& .MuiDataGrid-row.expanded-row": {
+                alignItems: "stretch",
+              },
+
+              "& .MuiDataGrid-row.expanded-row .MuiDataGrid-cell": {
+                padding: 0,
+                overflowX: "hidden",
+              },
+
+              "& .MuiDataGrid-main": {
+                overflowX: "hidden",
+              },
+
+              "& .MuiDataGrid-virtualScroller": {
+                overflowX: "hidden",
+              },
+
+              /* ===== SCROLLBAR ===== */
+              "& .MuiDataGrid-virtualScroller::-webkit-scrollbar": {
+                width: "4px",
+              },
+              "& .MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb": {
+                backgroundColor: "#DA0E29",
+                borderRadius: "6px",
+              },
             }}
           />
         </div>
 
 
-        <div className="flex items-center justify-between px-3 pt-3 text-xs shrink-0 border-t border-gray-200">
+        <div className=" flex items-center justify-between px-3 pt-3 text-xs shrink-0 border-t border-gray-200">
           <div className="flex items-center gap-2 text-gray-600">
             <span className="text-xs font-medium">Show</span>
 
@@ -719,13 +785,12 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
                 }}
                 className="
         appearance-none
-        h-8
+        h-7
         min-w-[70px]
         border
         border-gray-300
         bg-white
         px-3
-        pr-8
         text-sm
         font-semibold
         text-gray-800
@@ -744,7 +809,7 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
               </select>
 
               {/* caret */}
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-xs">
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-[9px]">
                 ▼
               </span>
             </div>

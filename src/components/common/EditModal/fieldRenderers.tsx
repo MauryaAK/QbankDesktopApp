@@ -115,3 +115,88 @@ export const dosDontFields: FieldSchema[] = [
     required: true,
   },
 ];
+
+
+
+
+
+export const questionFields: FieldSchema[] = [
+  {
+    name: "question",
+    label: "Question",
+    type: "text",
+    required: true,
+  },
+  {
+    name: "aircraftType",
+    label: "Aircraft Type",
+    type: "select",
+    required: true,
+  },
+  {
+    name: "ata",
+    label: "ATA",
+    type: "select",
+    required: true,
+  },
+  {
+    name: "complexity",
+    label: "Complexity",
+    type: "select",
+    required: true,
+  },
+  {
+    name: "bookTitle",
+    label: "Book Title",
+    type: "text",
+    required: true,
+  },
+  {
+    name: "chapter",
+    label: "Chapter",
+    type: "text",
+    required: true,
+  },
+  {
+    name: "topic",
+    label: "Topic",
+    type: "text",
+    required: true,
+  },
+  {
+    name: "page",
+    label: "Page",
+    type: "text",
+    required: true,
+  },
+
+  // ===== OPTIONS =====
+  { name: "answerA", label: "Answer A", type: "text", required: true },
+  { name: "answerB", label: "Answer B", type: "text", required: true },
+  { name: "answerC", label: "Answer C", type: "text", required: true },
+  { name: "answerD", label: "Answer D", type: "text", required: false },
+
+  {
+    name: "correctAnswer",
+    label: "Correct Answer",
+    type: "select",
+    required: true,
+    options: [
+
+    ],
+  },
+
+  {
+    name: "reason",
+    label: "Reason",
+    type: "text",
+    required: false,
+  },
+
+  {
+    name: "isActive",
+    label: "Status",
+    type: "toggle",
+    required: true,
+  },
+];

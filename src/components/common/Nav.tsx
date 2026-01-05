@@ -152,7 +152,7 @@ rounded-bl-lg rounded-br-lg
             </button>
 
             {/* ===== ROW 2 ===== */}
-            <div className="flex items-center gap-1 mt-8 justify-center">
+            <div className="flex items-center gap-1 mt-3 justify-center">
                 <ActionButton
                     label="Dashboard"
                     variant="primary"

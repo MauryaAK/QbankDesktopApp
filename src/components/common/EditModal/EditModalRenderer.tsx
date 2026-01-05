@@ -20,10 +20,15 @@ const selectStyles = {
     height: 32,
     border: "none",
     boxShadow: "none",
-    backgroundColor: state.isDisabled ? "#E5E5E5" : "#B9ACAC",
+    backgroundColor: state.isDisabled ? "#E5E5E5" : "transparent",
     borderRadius: 4,
   }),
 
+  menuList: (base: any) => ({
+    ...base,
+    maxHeight: 200,     // height limit
+    overflowY: "auto",  // 🔥 SCROLL ENABLED
+  }),
   valueContainer: (base: any) => ({
     ...base,
     padding: "0 8px",
@@ -62,8 +67,8 @@ const selectStyles = {
     background: state.isSelected
       ? "linear-gradient(90deg, #DA0E29 0%, #740716 100%)"
       : state.isFocused
-      ? "linear-gradient(90deg, #E73A4D 0%, #9A0F22 100%)"
-      : "transparent",
+        ? "linear-gradient(90deg, #E73A4D 0%, #9A0F22 100%)"
+        : "transparent",
 
     ":active": {
       background: "linear-gradient(90deg, #DA0E29 0%, #740716 100%)",

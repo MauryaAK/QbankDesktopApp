@@ -3,8 +3,10 @@ import axiosInstance from './axiosInstance';
 import { format } from 'date-fns';
 import { getBaseUrl } from './getBaseUrl';
 
-// GET TOP DEALS
-// api.ts
+
+
+
+//---------------------------Login Logout API's-----------------------------------
 export const getUserDetails = async (payload: {
   loginId: string;
   password: string;
@@ -19,7 +21,6 @@ export const logout = async (payload: { userId: number }) => {
   return response.data;
 };
 
-
 export const checkDeviceRegister = async (payload: {
   deviceName: string;
   deviceFingerprint: string;
@@ -28,13 +29,9 @@ export const checkDeviceRegister = async (payload: {
   return axiosInstance.post("Home/RegisterDevice", payload);
 };
 
-export const getQuestionList = async ({ queryKey }: any) => {
-  const [, userId] = queryKey;
-  return axiosInstance.get(
-    `/Question/GetQuestionMaster?UserId=${userId}&IsDashboard=True`
-  );
-};
 
+
+//---------------------------------------------dashboard API's list-----------------------------------
 export const getCandidateList = async () => {
   const today = format(new Date(), "dd-MM-yyyy");
   //  const today = format(subDays(new Date(), 3), "dd-MM-yyyy");
@@ -43,6 +40,9 @@ export const getCandidateList = async () => {
     endDate: today,
   });
 };
+
+
+
 
 
 // ------------------------------------admin apis ----------------------
@@ -100,6 +100,51 @@ export const activateDevice = async (payload) => {
 export const updatePassword = async (payload) => {
   return axiosInstance.post("/Admin/UpdatePassword", payload)
 };
+
+
+
+
+
+
+//-----------------------------------------Question API's-----------------------------------------------
+
+export const getQuestionList = async ({ queryKey }: any) => {
+  const [, userId] = queryKey;
+  return axiosInstance.get(
+    `/Question/GetQuestionMaster?UserId=${userId}&IsDashboard=True`
+  );
+};
+
+export const addEditQuestion = async (payload) => {
+  return axiosInstance.post("/Question/AddEditQuestion", payload)
+};
+
+export const getQuestionForChecking = async () => {
+  return axiosInstance.get(`/Question/GetQuestionForChecking`);
+};
+
+export const updatedQuestionList = async (payload) => {
+  return axiosInstance.post("/Question/CheckQuestion", payload)
+};
+
+export const getQuestionForVerification = async () => {
+  return axiosInstance.get(`/Question/GetQuestionForVerification`);
+};
+
+export const updatedVerifyQuestion = async (payload) => {
+  return axiosInstance.post("/Question/VerifyQuestion", payload)
+};
+
+
+
+
+
+
+
+
+
+
+
 
 
 

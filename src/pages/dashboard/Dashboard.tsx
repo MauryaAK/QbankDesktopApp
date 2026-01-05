@@ -63,9 +63,9 @@ const applyLocalFilters = (
 const Dashboard = () => {
   const tableRef = useRef<DataTableRef>(null);
   const [filters, setFilters] = useState<Record<string, any>>({});
-  console.log("filters", filters);
-
   const userId = useAppSelector((s) => s.auth.user?.id);
+  const [filterKey, setFilterKey] = useState<number>(0);
+
 
   /* ===== API CALL ===== */
   const questionList: any = useQuery({
@@ -100,19 +100,24 @@ const Dashboard = () => {
     return applyLocalFilters(allRows, filters);
   }, [allRows, filters]);
 
+  const handleReset = () => {
+    setFilters({})
+    setFilterKey(Math.random())
+  }
   return (
-    <div className="h-screen flex flex-col">
-      <div className="flex-1 mx-10 mt-9">
+    <div className="h-screen flex flex-col ">
+      <div className="mx-20">
         <div>
           {/* ===== FILTERS ===== */}
           <FilterSection
+            key={filterKey}
             fields={filterFieldsWithOptions}
             onChange={setFilters}
           />
 
           <div className="flex flex-col flex-1 overflow-hidden">
             {/* ===== HEADER ROW ===== */}
-            <div className="flex items-center justify-between shrink-0 mt-[3%]">
+            <div className="flex items-center justify-between shrink-0 mt-[1%] ">
               <div className="flex gap-6 items-center">
                 <button
                   onClick={() => console.log("Question Bank clicked")}
@@ -147,13 +152,13 @@ const Dashboard = () => {
               <div
                 className="
                   flex items-center
-                  w-[16%] h-8
+                  w-[17%] h-8
                   rounded-xl
                   bg-[#C3BFBF]
                   border border-red-200
                   shadow-sm
                   px-2
-                  mt-5
+                  mt-6
                   mr-0
                 "
               >
@@ -187,7 +192,7 @@ const Dashboard = () => {
             </div>
 
             {/* ===== TABLE ===== */}
-            <div className="flex overflow-hidden mt-0 h-96">
+            <div className="flex overflow-hidden mt-2 h-96">
               <DataTable
                 ref={tableRef}
                 isExpandable
@@ -208,51 +213,34 @@ const Dashboard = () => {
 
       {/* ===== FOOTER ===== */}
       <Footer
-        exports={[
-  {
-    type: "excel",
-    onClick: async () => {
-      await exportExcel(
-        dashboardColumns,
-        filteredRows,
-        "Question_Bank",
-        "ajay"
-      );
-    },
-  },
-  {
-    type: "pdf",
-    onClick: async () => {
-      await exportPdf(
-        dashboardColumns,
-        filteredRows,
-        "Question_Bank",
-        "ajay"
-      );
-    },
-  },
-]}
 
-        actions={[
+        exports={[
           {
-            type: "approve",
-            label: "APPROVE",
-            onClick: () => console.log("Approved"),
+            type: "excel",
+            onClick: async () => {
+              await exportExcel(
+                dashboardColumns,
+                filteredRows,
+                "Question_Bank",
+                "ajay"
+              );
+            },
           },
           {
-            type: "disapprove",
-            label: "DISAPPROVE",
-            onClick: () => console.log("Rejected"),
-          },
-          {
-            type: "clear",
-            label: "CLEAR",
-            onClick: () => console.log("Cleared"),
+            type: "pdf",
+            onClick: async () => {
+              await exportPdf(
+                dashboardColumns,
+                filteredRows,
+                "Question_Bank",
+                "ajay"
+              );
+            },
           },
         ]}
+
         buttons={[
-          { label: "Reset", onClick: () => console.log("Reset") },
-          { label: "Submit", onClick: () => console.log("Submit") },
+          { label: "Reset", onClick: handleReset },
         ]}
       />
     </div>

@@ -9,7 +9,7 @@ export const buildPermissionPayload = (
     ...originalRow,
 
     role: editForm.role,
-    reportTo: editForm.reportTo,
+    reportTo: originalRow.reportTo,
     isActive: editForm.isActive,
 
     rolePermission: originalRow.rolePermission.map((group: any) => {
@@ -106,6 +106,38 @@ export const buildDosDontPayload = (
     sno: originalRow.sno,
     rule: editForm.rule,
     isActive: editForm.isActive,
+    userId,
+  };
+};
+
+
+
+export const buildQuestionPayload = (
+  originalRow: any,
+  form: any,
+  userId: number
+) => {
+  return {
+    sno: originalRow?.sno ?? 0,
+
+    question: form.question,
+    aircraftType: form.aircraftType,
+    ata: form.ata,
+    complexity: form.complexity,
+    bookTitle: form.bookTitle,
+    chapter: form.chapter,
+    topic: form.topic,
+    page: form.page,
+
+    answerA: form.answerA,
+    answerB: form.answerB,
+    answerC: form.answerC,
+    answerD: form.answerD,
+
+    correctAnswer: form.correctAnswer,
+    reason: form.reason,
+    isActive: form.isActive,
+
     userId,
   };
 };
