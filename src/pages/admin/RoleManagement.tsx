@@ -240,6 +240,8 @@ import { buildPermissionPayload } from "../../utils/permissions/buildPayloads";
 import questionBnkIcon from "../../assets/questionBnkIcon.svg";
 import { attachSelectOptions } from "../../utils/applyFieldOptions";
 import { buildEmptyPermissions } from "../../utils/permissions/emptyPermissions";
+import FormikEditModal from "../../components/common/EditModal/FormikEditModal";
+import PermissionEffectListener from "../../components/common/EditModal/PermissionEffectListener";
 
 const RoleManagement = () => {
   const queryClient = useQueryClient();
@@ -272,6 +274,7 @@ const RoleManagement = () => {
     setIsEdit(true)
     setOriginalRow(row);
     setEditForm({
+      mode: "edit",
       role: row.role,
       reportTo: row.sno,
       isActive: row.isActive,
@@ -286,6 +289,7 @@ const RoleManagement = () => {
     setIsEdit(false)
     setOriginalRow(null);
     setEditForm({
+      mode: "add",
       role: "",
       reportTo: "",
       isActive: true,
@@ -493,20 +497,32 @@ const RoleManagement = () => {
       />
 
       {editOpen && editForm && (
-        <EditModalShell
+        <FormikEditModal
           open={editOpen}
-          title={originalRow ? "Edit Role" : "Add Role"}
-          leftTitle={originalRow ? "Edit Role" : "Add Role"}
+          title={isEdit ? "Edit Role" : "Add Role"}
+          leftTitle={isEdit ? "Edit Role" : "Add Role"}
+          fields={fieldsWithOptions}
+          initialValues={editForm}
           onClose={() => setEditOpen(false)}
-          onSubmit={handleSubmit}
+          onSubmit={(values) =>
+            mutation.mutate(
+              buildPermissionPayload(
+                originalRow,
+                values,
+                permission.state,
+                userId,
+                !isEdit
+              )
+            )
+          }
         >
-          <EditModalRenderer
-            fields={fieldsWithOptions}
-            values={editForm}
-            onChange={handleFieldChange}
+          <PermissionEffectListener
+            rows={rows}
+            isEdit={isEdit}
+            permission={permission}
+            setOriginalRow={setOriginalRow}
           />
 
-          {/* ✅ SHOW ONLY WHEN PERMISSIONS EXIST */}
           {permission.groups.length > 0 && (
             <EditModalFieldWrapper label="Permission" required>
               <ExpandableOptionGroup
@@ -518,8 +534,9 @@ const RoleManagement = () => {
               />
             </EditModalFieldWrapper>
           )}
-        </EditModalShell>
+        </FormikEditModal>
       )}
+
     </div>
   );
 };

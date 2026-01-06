@@ -87,7 +87,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   initialValues = {},
   showActionButtons = false,
   onApply,
-  applyLabel = "Apply",
+  applyLabel = "Add New",
   resetLabel = "Reset",
   applyDisabled = false,
 }) => {
@@ -153,7 +153,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
           <button
             disabled={applyDisabled}
             onClick={() => onApply?.(filters)}
-            className="h-9 px-5 rounded-md bg-red-700 text-white hover:bg-red-800 disabled:opacity-50 text-sm"
+            className="h-8 px-5 rounded-md bg-red-700 text-white hover:bg-red-800 disabled:opacity-50 text-sm"
           >
             {applyLabel}
           </button>

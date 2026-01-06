@@ -1,9 +1,11 @@
+import { ReactNode } from "react";
+
 export type AlertVariant = "error" | "warning" | "info" | "success";
 
 export interface AlertConfig {
   open: boolean;
   title: string;
-  message: string;
+  message: ReactNode|string;
   variant?: AlertVariant;
   showActionButtons?: boolean;
   onConfirm?: () => void;

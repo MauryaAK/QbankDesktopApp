@@ -6,6 +6,7 @@ export const roleFields: FieldSchema[] = [
     label: "Role",
     type: "text",
     required: true,
+    disabled: (values) => values.mode === "edit",
   },
   {
     name: "reportTo",
@@ -17,6 +18,12 @@ export const roleFields: FieldSchema[] = [
       { label: "Administrator", value: "Administrator" },
     ],
   },
+  {
+    name: "isActive",
+    label: "Status",
+    type: "toggle",
+    required: true,
+  },
 ];
 
 
@@ -26,6 +33,7 @@ export const userFields: FieldSchema[] = [
     name: "userName",
     label: "Login ID",
     type: "text",
+    disabled: (values) => values.mode === "edit",
     required: true,
   },
   {
@@ -85,6 +93,7 @@ export const ataFields: FieldSchema[] = [
     label: "ATA Code",
     type: "text",
     required: true,
+    disabled: (values) => values.mode === "edit",
   },
   {
     name: "ataDescription",

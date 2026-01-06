@@ -540,7 +540,7 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
     const actionColumns: GridColDef[] = includeActionColumn
       ? [
         {
-          field: "__status",
+          field: "isActive",
           headerName: "Status",
           width: 90,
           renderCell: (params) =>
@@ -550,11 +550,19 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
                   e.stopPropagation();
                   onStatusClick?.(params.row);
                 }}
-                className="px-2 py-[2px] text-xs rounded-md border bg-green-400"
+                className={`
+        px-3 py-[2px] text-xs font-semibold rounded-full border
+        transition-colors duration-150
+        ${params.row?.isActive
+                    ? "bg-green-100 text-green-700 border-green-400 hover:bg-green-200"
+                    : "bg-red-100 text-red-700 border-red-400 hover:bg-red-200"
+                  }
+      `}
               >
-                Active
+                {params.row?.isActive ? "Active" : "Inactive"}
               </button>
             ),
+
         },
         {
           field: "__action",
@@ -588,7 +596,7 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
                 {actionConfig?.radio && (
                   <ToggleRadio
                     size="xs"
-                    checked={selectedRowId === params.row.id}
+                    checked={params.row.isActive}
                     icon={<HiFlag size={12} />}
                     onChange={() => {
                       onRadioSelect?.(params.row);

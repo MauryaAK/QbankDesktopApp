@@ -18,6 +18,7 @@ import { withRowId } from "../../utils/withRowId";
 import { AlertConfig } from "../../components/common/AlertModal/alert.types";
 
 import { machineMaster } from "../../utils/tableColumns";
+import AlertModal from "../../components/common/AlertModal/AlertModal";
 
 const MachineMaster = () => {
   const tableRef = useRef<DataTableRef>(null);
@@ -60,13 +61,22 @@ const MachineMaster = () => {
   /* ================= TOGGLE HANDLER ================= */
 
   const handleToggleClick = (row: any) => {
+
     const nextStatus = !row.isActive;
 
     setAlert({
       open: true,
       title: "Confirm Action",
-      message: `Are you sure you want to ${nextStatus ? "activate" : "deactivate"
-        } this device?`,
+      message: (
+        <>
+          Are you sure you want to{" "}
+          <strong className="text-red-600 font-bold uppercase">
+            {nextStatus ? "activate" : "deactivate"}
+          </strong>{" "}
+          this device?
+        </>
+      ),
+
       variant: "warning",
       showActionButtons: true,
 
@@ -90,6 +100,7 @@ const MachineMaster = () => {
 
   return (
     <div className="h-screen flex flex-col">
+      <AlertModal {...alert} />
       <div className="mx-20">
         <div className="flex items-center justify-between shrink-0 mt-[1%] ">
           <div className="flex gap-6 items-center">
