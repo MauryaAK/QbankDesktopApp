@@ -93,7 +93,7 @@
 
 //   return (
 // <div className="h-screen flex flex-col">
-//   <div className="mx-20">
+//   <div className="mx-20 mt-5">
 //     <div className="flex items-center justify-between shrink-0 mt-[1%] ">
 //       <div className="flex gap-6 items-center">
 //         <button
@@ -156,7 +156,7 @@
 //       </div>
 //     </div>
 
-//     <div className="flex overflow-hidden mt-7 h-[450px]">
+//     <div className="flex overflow-hidden mt-5 h-[450px]">
 //       <DataTable
 //         ref={tableRef}
 //         columns={roleManagement}
@@ -362,12 +362,12 @@ const RoleManagement = () => {
 
   return (
     // <div className="h-screen flex flex-col">
-    //   <div className="mx-20">
+    //   <div className="mx-20 mt-5">
 
     //     {/* HEADER + SEARCH (UNCHANGED) */}
     //     {/* ... SAME CODE AS YOURS ... */}
 
-    //     <div className="flex overflow-hidden mt-7 h-[450px]">
+    //     <div className="flex overflow-hidden mt-5 h-[450px]">
     //       <DataTable
     //         ref={tableRef}
     //         columns={roleManagement}
@@ -415,7 +415,7 @@ const RoleManagement = () => {
     // )}
     // </div>
     <div className="h-screen flex flex-col">
-      <div className="mx-20">
+      <div className="mx-20 mt-5 mt-5">
         <div className="flex items-center justify-between shrink-0 mt-[1%] ">
           <div className="flex gap-6 items-center">
             <button
@@ -478,7 +478,7 @@ const RoleManagement = () => {
           </div>
         </div>
 
-        <div className="flex overflow-hidden mt-7 h-[450px]">
+        <div className="flex overflow-hidden mt-5 h-[450px]">
           <DataTable
             ref={tableRef}
             columns={roleManagement}

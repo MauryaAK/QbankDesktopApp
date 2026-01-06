@@ -106,7 +106,7 @@ const Dashboard = () => {
   }
   return (
     <div className="h-screen flex flex-col ">
-      <div className="mx-20">
+      <div className="mx-20 mt-5">
         <div>
           {/* ===== FILTERS ===== */}
           <FilterSection
@@ -192,7 +192,7 @@ const Dashboard = () => {
             </div>
 
             {/* ===== TABLE ===== */}
-            <div className="flex overflow-hidden mt-2 h-96">
+            <div className="flex overflow-hidden mt-2 h-[360px]">
               <DataTable
                 ref={tableRef}
                 isExpandable

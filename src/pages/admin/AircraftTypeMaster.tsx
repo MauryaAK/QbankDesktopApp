@@ -80,7 +80,7 @@
 
 //   return (
 //     <div className="h-screen flex flex-col">
-//       <div className="mx-20">
+//       <div className="mx-20 mt-5">
 //         <div className="flex items-center justify-between shrink-0 mt-[1%] ">
 //           <div className="flex gap-6 items-center">
 //             <button
@@ -143,7 +143,7 @@
 //           </div>
 //         </div>
 
-//         <div className="flex overflow-hidden mt-7 h-[450px]">
+//         <div className="flex overflow-hidden mt-5 h-[450px]">
 //           <DataTable
 //             ref={tableRef}
 //             columns={aircraftMaster}
@@ -300,7 +300,7 @@
 
 //   return (
 //     <div className="h-screen flex flex-col">
-//       <div className="mx-20">
+//       <div className="mx-20 mt-5">
 //         <div className="flex items-center justify-between shrink-0 mt-[1%] ">
 //           <div className="flex gap-6 items-center">
 //             <button
@@ -358,7 +358,7 @@
 //           </div>
 //         </div>
 
-//         <div className="flex overflow-hidden mt-7 h-[450px]">
+//         <div className="flex overflow-hidden mt-5 h-[450px]">
 //           <DataTable
 //             ref={tableRef}
 //             columns={aircraftMaster}
@@ -508,7 +508,7 @@ const AircraftTypeMaster = () => {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="mx-20">
+      <div className="mx-20 mt-5">
         <div className="flex items-center justify-between shrink-0 mt-[1%] ">
           <div className="flex gap-6 items-center">
             <button
@@ -566,7 +566,7 @@ const AircraftTypeMaster = () => {
           </div>
         </div>
 
-        <div className="flex overflow-hidden mt-7 h-[450px]">
+        <div className="flex overflow-hidden mt-5 h-[450px]">
           <DataTable
             ref={tableRef}
             columns={aircraftMaster}

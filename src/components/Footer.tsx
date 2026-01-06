@@ -85,7 +85,7 @@ const Footer: React.FC<FooterProps> = ({
   const { deviceInfo } = useDeviceFingerprint();
 
   return (
-    <div className="absolute left-0 bottom-0 w-full px-20 py-3 text-sm">
+    <div className="absolute left-0 bottom-5 w-full px-20 py-3 text-sm">
       {/* ================= EXPORT ICONS ================= */}
       {showExports && exports.length > 0 && (
         <div className="flex justify-end items-center gap-3 mr-10 text-[10px] font-semibold text-gray-600 uppercase mb-2">

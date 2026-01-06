@@ -484,7 +484,7 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
     const isMobile = useIsMobile();
     const apiRef = useGridApiRef();
 
-    const ROW_HEIGHT = 32;
+    const ROW_HEIGHT = 28;
     const HEADER_HEIGHT = 30;
     const DEFAULT_PAGE_SIZE = 50;
 

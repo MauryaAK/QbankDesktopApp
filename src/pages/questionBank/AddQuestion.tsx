@@ -599,7 +599,7 @@ const AddQuestions = () => {
 
     return (
         <div className="h-screen flex flex-col ">
-            <div className="mx-20">
+            <div className="mx-20 mt-5">
                 <div>
                     <FilterSection
                         showActionButtons

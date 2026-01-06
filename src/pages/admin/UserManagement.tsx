@@ -96,7 +96,7 @@
 
 //   return (
 //     <div className="h-screen flex flex-col">
-//       <div className="mx-20">
+//       <div className="mx-20 mt-5">
 //         <div className="flex items-center justify-between shrink-0 mt-[1%] ">
 //           <div className="flex gap-6 items-center">
 //             <button
@@ -159,7 +159,7 @@
 //           </div>
 //         </div>
 
-//         <div className="flex overflow-hidden mt-7 h-[450px]">
+//         <div className="flex overflow-hidden mt-5 h-[450px]">
 //           <DataTable
 //             ref={tableRef}
 //             columns={userManagement}
@@ -349,7 +349,7 @@
 
 //   return (
 //     <div className="h-screen flex flex-col">
-//       <div className="mx-20">
+//       <div className="mx-20 mt-5">
 //         <div className="flex items-center justify-between shrink-0 mt-[1%] ">
 //           <div className="flex gap-6 items-center">
 //             <button
@@ -407,7 +407,7 @@
 //           </div>
 //         </div>
 
-//         <div className="flex overflow-hidden mt-7 h-[450px]">
+//         <div className="flex overflow-hidden mt-5 h-[450px]">
 //           <DataTable
 //             ref={tableRef}
 //             columns={userManagement}
@@ -476,6 +476,8 @@ import FormikEditModal from "../../components/common/EditModal/FormikEditModal";
 import { userFields } from "../../components/common/EditModal/fieldRenderers";
 import { buildUserPayload } from "../../utils/permissions/buildPayloads";
 import { attachSelectOptions } from "../../utils/applyFieldOptions";
+import { AlertConfig } from "../../components/common/AlertModal/alert.types";
+import AlertModal from "../../components/common/AlertModal/AlertModal";
 
 /* ================= EMPTY FORM (ADD MODE) ================= */
 
@@ -493,7 +495,15 @@ const UserManagement = () => {
   const queryClient = useQueryClient();
   const tableRef = useRef<DataTableRef>(null);
   const userId = useAppSelector((s) => s.auth.user?.id);
-
+  const [alert, setAlert] = useState<AlertConfig>({
+    open: false,
+    title: "",
+    message: "",
+    variant: "warning",
+    showActionButtons: true,
+  });
+  const hideAlert = () =>
+    setAlert((prev) => ({ ...prev, open: false }));
   /* ================= STATE ================= */
 
   const [editOpen, setEditOpen] = useState(false);
@@ -538,12 +548,39 @@ const UserManagement = () => {
 
   /* ================= UPDATE PASSWORD ================= */
 
-  const handleUpdatePassword = async (row: any) => {
-    await updatePassword({
-      sno: row.sno,
-      currentPassword: null,
-      newPassword: "123",
-      userId: userId,
+  const handleUpdatePassword = (row: any) => {
+
+
+    setAlert({
+      open: true,
+      title: "Confirm Action",
+      message: (
+        <>
+          Are you sure you want to{" "}
+          <strong className="text-red-600 font-bold uppercase">
+            Reset
+          </strong>{" "}
+          Password?
+        </>
+      ),
+
+      variant: "warning",
+      showActionButtons: true,
+
+      onConfirm: async () => {
+        await updatePassword({
+          sno: row.sno,
+          currentPassword: null,
+          newPassword: "123",
+          userId: userId,
+        });
+      },
+
+      onCancel: () => {
+
+      },
+
+      onClose: hideAlert,
     });
   };
 
@@ -582,8 +619,8 @@ const UserManagement = () => {
       originalRow, // null → ADD | object → EDIT
       values,
       userId,
-      editForm.mode!=="edit"
-      
+      editForm.mode !== "edit"
+
     );
 
     mutation.mutate(payload);
@@ -591,7 +628,8 @@ const UserManagement = () => {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="mx-20">
+      <AlertModal {...alert} />
+      <div className="mx-20 mt-5">
         <div className="flex items-center justify-between shrink-0 mt-[1%] ">
           <div className="flex gap-6 items-center">
             <button
@@ -649,7 +687,7 @@ const UserManagement = () => {
           </div>
         </div>
 
-        <div className="flex overflow-hidden mt-7 h-[450px]">
+        <div className="flex overflow-hidden mt-5 h-[450px]">
           <DataTable
             ref={tableRef}
             columns={userManagement}
