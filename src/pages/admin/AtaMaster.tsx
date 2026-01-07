@@ -517,6 +517,7 @@ import { ataFields } from "../../components/common/EditModal/fieldRenderers";
 import { buildAtaPayload } from "../../utils/permissions/buildPayloads";
 import { normalizeAircraftTypes } from "../../utils/normalizeAircraftTypes";
 import { ataMaster } from "../../utils/tableColumns";
+import { exportExcel } from "../../utils/exporters/exportExcel";
 
 /* ================= EMPTY FORM (ADD MODE) ================= */
 
@@ -715,7 +716,16 @@ const AtaMaster = () => {
       {/* ===== FOOTER ===== */}
       <Footer
         buttons={[
-          { label: "Download Excel", onClick: () => { } },
+          {
+            label: "Download Excel", onClick: async () => {
+              await exportExcel(
+                ataMaster,
+                rows,
+                "ATA_Master",
+                "testUser"
+              );
+            }
+          },
           { label: "Bulk ATA", onClick: () => { } },
           { label: "Add New", onClick: handleAddNew },
         ]}
