@@ -317,17 +317,16 @@ export const buildQuestionPayload = (
 
     question: form.question,
     aircraftType: form.aircraftType,
-    ata: form.ata,
+    ataCode: form.ataCode,
     complexity: form.complexity,
     bookTitle: form.bookTitle,
     chapter: form.chapter,
     topic: form.topic,
     page: form.page,
 
-    answerA: form.answerA,
-    answerB: form.answerB,
-    answerC: form.answerC,
-    answerD: form.answerD,
+    answer1: form.answer1,
+    answer2: form.answer2,
+    answer3: form.answer3,
 
     correctAnswer: form.correctAnswer,
     reason: form.reason,

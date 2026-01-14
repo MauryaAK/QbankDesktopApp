@@ -203,10 +203,6 @@ import MachineMaster from "./pages/admin/MachineMaster";
 import AddQuestion from "./pages/questionBank/AddQuestion";
 import CheckQuestion from "./pages/questionBank/CheckQuestion";
 import VerifyQuestion from "./pages/questionBank/VerifyQuestion";
-import RegisterCandidate from "./pages/examPaper/RegisterCandidate";
-import AtaGroups from "./pages/examPaper/AtaGroups";
-import ValidatePaper from "./pages/examPaper/ValidatePaper";
-import GeneratePaper from "./pages/examPaper/GeneratePaper";
 import ExamStatus from "./pages/examStatus/ExamStatus";
 import AtaPerformance from "./pages/reports/AtaPerformance";
 import QuestionPerformance from "./pages/reports/QuestionPerformance";
@@ -230,6 +226,10 @@ import ProtectedRoute from "./routes";
 import { useSelector } from "react-redux";
 import { RootState } from "./store/rootReducer";
 import { useAutoBodyBackground } from "./hooks/useBodyBackground";
+import GenerateAtaGroups from "./pages/exam-paper-mngmt/GenerateAtaGroups";
+import RegisterCandidate from "./pages/exam-paper-mngmt/RegisterCandidate";
+import ValidateQuestionPaper from "./pages/exam-paper-mngmt/ValidateQuestionPaper";
+import GenerateExamPaper from "./pages/exam-paper-mngmt/GenerateExamPaper";
 
 interface Payload {
   deviceFingerprint: string;
@@ -353,13 +353,15 @@ function App() {
         { path: "question-bank/verify", element: <VerifyQuestion /> },
 
         /* ===== EXAM PAPER ===== */
-        { path: "exam-paper/ata-groups", element: <AtaGroups /> },
+        { path: "exam-paper/generate-ata-groups", element: <GenerateAtaGroups /> },
         { path: "exam-paper/register-candidate", element: <RegisterCandidate /> },
-        { path: "exam-paper/validate", element: <ValidatePaper /> },
-        { path: "exam-paper/generate", element: <GeneratePaper /> },
+        { path: "exam-paper/validate-question-paper", element: <ValidateQuestionPaper /> },
+        { path: "exam-paper/generate-exam-paper", element: <GenerateExamPaper /> },
 
         /* ===== EXAM STATUS ===== */
-        { path: "exam-status", element: <ExamStatus /> },
+        { path: "exam-status/view-exam-status", element: <ExamStatus /> },
+        { path: "exam-status/generate-hard-copy", element: <ExamStatus /> },
+        { path: "exam-status/scan-omr-sheet", element: <ExamStatus /> },
 
         /* ===== REPORTS ===== */
         { path: "report/ata-performance", element: <AtaPerformance /> },

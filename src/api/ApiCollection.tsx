@@ -138,8 +138,18 @@ export const updatedVerifyQuestion = async (payload) => {
 
 
 
+//-----------------------------------------Examination Management---------------------------
 
+export const GetAircraftAta = async ({ queryKey }: any) => {
+  const [, AircraftType] = queryKey;
+  return axiosInstance.get(
+    `/Examination/GetAircraftAta?AircraftType=${AircraftType}`
+  );
+};
 
+export const getRegisteredAta = async () => {
+  return axiosInstance.get(`/Examination/GetRegisteredAta`);
+};
 
 
 

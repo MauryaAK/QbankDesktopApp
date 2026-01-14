@@ -62,8 +62,19 @@ import InputField from "./InputField";
 import DateField from "./DateField";
 import { FilterField } from "./filterTypes";
 
+
+interface FieldMappingConfig {
+  sourceField: string;
+  targetField: string;
+  data: any[];
+  matchKey: string;
+  targetLabel: string;
+  targetValue: string;
+}
+
 interface FilterSectionProps {
   fields: FilterField[];
+  label?: string;
   onChange: (filters: Record<string, any>) => void;
 
   /** Optional */
@@ -72,17 +83,18 @@ interface FilterSectionProps {
 
   /** Action callbacks */
   onApply?: (filters: Record<string, any>) => void;
-
   /** Button labels */
   applyLabel?: string;
   resetLabel?: string;
 
   /** Button states */
   applyDisabled?: boolean;
+  fieldMapping?: FieldMappingConfig;
 }
 
 const FilterSection: React.FC<FilterSectionProps> = ({
   fields,
+  label,
   onChange,
   initialValues = {},
   showActionButtons = false,
@@ -90,19 +102,53 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   applyLabel = "Add New",
   resetLabel = "Reset",
   applyDisabled = false,
+  fieldMapping
 }) => {
   const [filters, setFilters] = useState<Record<string, any>>(initialValues);
+  const [examPhaseOptions, setExamPhaseOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
 
   /* ===== EMIT FILTERS TO PARENT (LIVE CHANGE) ===== */
   useEffect(() => {
     onChange(filters);
   }, [filters, onChange]);
 
+  const handleGenerateExamPhase = () => {
+    const number = examPhaseOptions.length + 1;
+
+    const option = {
+      label: `Phase ${number}`,
+      value: `phase${number}`,
+    };
+
+    setExamPhaseOptions((prev) => [
+      ...prev,
+      option,
+    ]);
+  };
+
+
 
   /* ===== FIELD RENDERER ===== */
   const renderField = (field: FilterField) => {
     switch (field.type) {
       case "select":
+        if (field.key === "examPhase") {
+          return (
+            <SelectField
+              onClickPlus={handleGenerateExamPhase}
+              key={field.key}
+              label={field.label}
+              options={examPhaseOptions || []}
+              value={filters[field.key] ?? null}
+              onChange={(val) =>
+                setFilters((prev) => ({ ...prev, [field.key]: val }))
+              }
+            />
+
+          );
+        }
         return (
           <SelectField
             key={field.key}
@@ -146,6 +192,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
 
   return (
     <FilterContainer
+      label={label}
       actions={
         showActionButtons && (
 

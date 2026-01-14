@@ -17,6 +17,7 @@ import { useAppSelector } from "../../hooks/reduxHooks";
 import { withRowId } from "../../utils/withRowId";
 import { exportExcel } from "../../utils/exporters/exportExcel";
 import { exportPdf } from "../../utils/exporters/exportPdf";
+import Loader from "../../components/common/Loader";
 
 /* ================= UTILS ================= */
 
@@ -65,10 +66,10 @@ const Dashboard = () => {
   const [filters, setFilters] = useState<Record<string, any>>({});
   const userId = useAppSelector((s) => s.auth.user?.id);
   const [filterKey, setFilterKey] = useState<number>(0);
-
+  const [loading, setLoading] = useState(true)
 
   /* ===== API CALL ===== */
-  const questionList: any = useQuery({
+  const { isLoading, data } = useQuery({
     queryKey: ["questionList", userId],
     queryFn: getQuestionList,
     enabled: !!userId,
@@ -82,8 +83,8 @@ const Dashboard = () => {
     mutation.mutate();
   };
   const allRows = useMemo(() => {
-    return withRowId(questionList?.data?.questions ?? []);
-  }, [questionList?.data?.questions]);
+    return withRowId(data?.questions ?? []);
+  }, [data?.questions]);
 
 
   /* ===== BUILD FILTER OPTIONS FROM DATA ===== */
@@ -96,6 +97,8 @@ const Dashboard = () => {
   }, [allRows]);
 
   /* ===== APPLY LOCAL FILTERING ===== */
+  console.log("filters==das>", filters);
+
   const filteredRows = useMemo(() => {
     return applyLocalFilters(allRows, filters);
   }, [allRows, filters]);
@@ -104,8 +107,13 @@ const Dashboard = () => {
     setFilters({})
     setFilterKey(Math.random())
   }
+
+  const isPageLoading =
+    isLoading || mutation.isPending;
+
   return (
     <div className="h-screen flex flex-col ">
+      <Loader visible={isPageLoading} fullscreen />
       <div className="mx-20 mt-5">
         <div>
           {/* ===== FILTERS ===== */}

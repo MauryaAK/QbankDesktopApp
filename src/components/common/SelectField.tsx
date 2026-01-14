@@ -1,4 +1,5 @@
 import React from "react";
+import { FaPlus, FaPlusCircle } from "react-icons/fa";
 import Select, {
   components,
   ValueContainerProps,
@@ -18,6 +19,7 @@ interface Props {
   value: Option | null;
   options: Option[];
   onChange: (val: Option | null) => void;
+  onClickPlus?: () => void;
 }
 
 const styles = {
@@ -52,12 +54,31 @@ const SelectField: React.FC<Props> = ({
   value,
   options,
   onChange,
+  onClickPlus
+
 }) => {
   return (
     <div className="flex items-center gap-2">
-      <span className="min-w-[90px] text-xs font-medium text-gray-600">
-        {label}
-      </span>
+      {label && (
+        <div className="min-w-[90px] shrink-0 whitespace-nowrap text-xs font-medium text-gray-600 flex items-center gap-1">
+          {label}
+
+          {label === "Exam Phase" && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onClickPlus();
+              }}
+              className="text-green-500 hover:text-green-600 cursor-pointer"
+            >
+              <FaPlusCircle className="text-lg" />
+            </button>
+          )}
+        </div>
+      )}
+
 
       <div className="w-full">
         <Select
@@ -70,6 +91,7 @@ const SelectField: React.FC<Props> = ({
         />
       </div>
     </div>
+
   );
 };
 

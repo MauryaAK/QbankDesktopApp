@@ -169,4 +169,85 @@ const machineMaster: GridColDef[] = [
     flex: 1.2,
   },
 ];
-export { dashboardColumns, dosDontMaster, machineMaster, ataMaster, aircraftMaster, userManagement, roleManagement };
+
+
+const generateAtaGroupColumn: GridColDef[] = [
+  {
+    field: "id",
+    headerName: "S.NO",
+    width: 70,
+  },
+  {
+    field: "ataCode",
+    headerName: "ATA",
+    width: 100,
+  },
+  {
+    field: "ataDescription",
+    headerName: "ATA Description",
+    flex: 4,
+  },
+  {
+    type: 'number',
+    field: "avaiableQuestion1",
+    headerName: "A1",
+    flex: 1,
+  },
+  {
+    type: 'number',
+    field: "avaiableQuestion2",
+    headerName: "A2",
+    flex: 1,
+  },
+  {
+    type: 'number',
+    field: "avaiableQuestion3",
+    headerName: "A3",
+    flex: 1,
+  },
+  {
+    field: "complexity",
+    headerName: "Complexity",
+    flex: 2,
+
+    editable: true,          // 🔑 REQUIRED
+    type: "singleSelect",    // 🔑 REQUIRED
+
+    valueOptions: [
+      { label: "1", value: 1 },
+      { label: "2", value: 2 },
+      { label: "3", value: 3 },
+    ],
+  },
+
+  {
+    type: 'number',
+    field: "duration",
+    headerName: "Duration (Hrs)",
+    flex: 2,
+    editable: true
+  },
+  {
+    type: 'number',
+    field: "S1",
+    headerName: "S1",
+    flex: 1,
+    editable: true
+  },
+  {
+    type: 'number',
+    field: "S2",
+    headerName: "S2",
+    flex: 1,
+    editable: true
+  },
+  {
+    type: 'number',
+    field: "S3",
+    headerName: "S3",
+    flex: 1,
+    editable: true
+  },
+];
+
+export { dashboardColumns, dosDontMaster, machineMaster, ataMaster, aircraftMaster, userManagement, roleManagement, generateAtaGroupColumn };

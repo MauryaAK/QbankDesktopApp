@@ -1,3 +1,4 @@
+
 const DASHBOARD_FILTER_FIELDS = [
     { key: "aircraftType", label: "Aircraft Type", type: "select" },
     { key: "ataCode", label: "ATA", type: "select" },
@@ -9,6 +10,18 @@ const DASHBOARD_FILTER_FIELDS = [
     { key: "page", label: "Page", type: "select" },
 ];
 
+const GENERATE_ATA_GROUP = [
+    { key: "aircraftType", label: "Aircraft Type", type: "select" },
+    {
+        key: "trainingType", label: "Training Type", type: "select"
+    },
+    { key: "trainingStartDate", label: "Training Start Date", type: "date" },
+    { key: "trainingEndDate", label: "Training End Date", type: "date" },
+    { key: "courseId", label: "Course ID", type: "select" },
+    { key: "courseName", label: "Course Name", type: "select" },
+    { key: "examPhase", label: "Exam Phase", type: "select" },
+    { key: "ExamDate", label: "Exam Date", type: "date" },
+];
 
 
-export { DASHBOARD_FILTER_FIELDS }
+export { DASHBOARD_FILTER_FIELDS, GENERATE_ATA_GROUP }

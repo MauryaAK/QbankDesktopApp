@@ -60,9 +60,117 @@
 
 
 
+// import React, { useState, useRef, useEffect } from "react";
+// import Calendar from "react-calendar";
+// import { format } from "date-fns";
+
+// interface DateFieldProps {
+//   label: string;
+//   value: Date | null;
+//   onChange: (date: Date | null) => void;
+// }
+
+// const DateField: React.FC<DateFieldProps> = ({
+//   label,
+//   value,
+//   onChange,
+// }) => {
+//   const [open, setOpen] = useState(false);
+//   const ref = useRef<HTMLDivElement>(null);
+
+//   /* ================= CLICK OUTSIDE ================= */
+//   useEffect(() => {
+//     const handleClickOutside = (e: MouseEvent) => {
+//       if (ref.current && !ref.current.contains(e.target as Node)) {
+//         setOpen(false);
+//       }
+//     };
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () =>
+//       document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
+
+//   return (
+//     <div className="flex items-center gap-2 w-full" ref={ref}>
+//       {/* LABEL */}
+//       <span
+//         className="
+//           min-w-[90px]
+//           text-xs
+//           font-medium
+//           text-gray-600
+//         "
+//       >
+//         {label}
+//       </span>
+
+//       {/* INPUT */}
+//       <div className="relative w-full">
+//         <input
+//           readOnly
+//           value={value ? format(value, "dd-MM-yyyy") : ""}
+//           placeholder="Select"
+//           onClick={() => setOpen((prev) => !prev)}
+//           className="
+//             h-8 w-full
+//             px-2
+//             rounded-lg
+//             border
+//             text-[12px]
+//             text-gray-700
+//             bg-white
+//             cursor-pointer
+//             border-[#fbcfe8]
+//             focus:outline-none
+//             focus:border-[#ec4899]
+//             focus:ring-0
+//           "
+//         />
+        
+
+//         {/* CALENDAR DROPDOWN */}
+//         {open && (
+//           <div
+//             className="
+//               absolute
+//               z-50
+//               mt-1
+//               bg-white
+//               border
+//               border-[#fbcfe8]
+//               rounded-lg
+//               shadow-lg
+//               p-2
+//             "
+//           >
+//             <Calendar
+//               onChange={(date: any) => {
+//                 onChange(date);
+//                 setOpen(false);
+//               }}
+//               value={value}
+//               className="!w-[220px] text-xs"
+//               tileClassName="!p-1"
+//             />
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default DateField;
+
+
+
+
+
+
+
 import React, { useState, useRef, useEffect } from "react";
 import Calendar from "react-calendar";
 import { format } from "date-fns";
+import { FaRegCalendarAlt } from "react-icons/fa"; // ✅ ADD THIS
 
 interface DateFieldProps {
   label: string;
@@ -78,7 +186,6 @@ const DateField: React.FC<DateFieldProps> = ({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  /* ================= CLICK OUTSIDE ================= */
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -93,14 +200,7 @@ const DateField: React.FC<DateFieldProps> = ({
   return (
     <div className="flex items-center gap-2 w-full" ref={ref}>
       {/* LABEL */}
-      <span
-        className="
-          min-w-[90px]
-          text-xs
-          font-medium
-          text-gray-600
-        "
-      >
+      <span className="min-w-[90px] text-xs font-medium text-gray-600">
         {label}
       </span>
 
@@ -113,7 +213,7 @@ const DateField: React.FC<DateFieldProps> = ({
           onClick={() => setOpen((prev) => !prev)}
           className="
             h-8 w-full
-            px-2
+            px-2 pr-8   /* ✅ SPACE FOR ICON */
             rounded-lg
             border
             text-[12px]
@@ -124,6 +224,19 @@ const DateField: React.FC<DateFieldProps> = ({
             focus:outline-none
             focus:border-[#ec4899]
             focus:ring-0
+          "
+        />
+
+        {/* ✅ CALENDAR ICON */}
+        <FaRegCalendarAlt
+          className="
+            absolute
+            right-2
+            top-1/2
+            -translate-y-1/2
+            text-gray-400
+            text-xs
+            pointer-events-none
           "
         />
 
@@ -159,9 +272,3 @@ const DateField: React.FC<DateFieldProps> = ({
 };
 
 export default DateField;
-
-
-
-
-
-

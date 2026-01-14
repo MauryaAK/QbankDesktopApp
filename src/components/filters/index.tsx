@@ -34,16 +34,18 @@ import filterBg from "../../assets/filter.svg";
 const FilterContainer = ({
   children,
   actions,
+  label="FILTER"
 }: {
   children: React.ReactNode;
   actions?: React.ReactNode;
+  label?:string
 }) => {
   return (
     <div className="rounded-2xl px-4 py-1">
       {/* HEADER */}
       <div className="flex items-center gap-1">
         <img src={filterBg} alt="" className="w-5 h-5" />
-        <h2 className="font-bold text-md">FILTER</h2>
+        <h2 className="font-bold text-md">{label}</h2>
       </div>
 
       {/* CONTENT */}
