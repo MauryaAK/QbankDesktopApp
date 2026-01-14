@@ -52,6 +52,68 @@ const dashboardColumns: GridColDef[] = [
     width: 80,
   },
 ];
+const dashboardCandidateColumns: GridColDef[] = [
+  {
+    field: "id",
+    headerName: "S.NO",
+    flex: 1,
+  },
+  {
+    field: "rollNo",
+    headerName: "Roll No",
+    flex: 1,
+  },
+  {
+    field: "batchId",
+    headerName: "Batch ID",
+    flex: 1,
+  },
+  {
+    field: "tq",
+    headerName: "TQ",
+    flex: 1,
+  },
+  {
+    field: "ta",
+    headerName: "TA",
+    flex: 1,
+  },
+  {
+    field: "tc",
+    headerName: "TC",
+    flex: 1,
+  },
+  {
+    field: "marks",
+    headerName: "Marks",
+    flex: 1,
+  },
+  {
+    field: "result",
+    headerName: "Result",
+    flex: 1,
+  },
+  {
+    field: "examination",
+    headerName: "Examination",
+    flex: 1,
+  },
+  {
+    field: "examDate",
+    headerName: "ExamDate",
+    flex: 1,
+  },
+  {
+    field: "cComment",
+    headerName: "C Comment",
+    flex: 1,
+  },
+  {
+    field: "eComment",
+    headerName: "E Comment",
+    flex: 1,
+  },
+];
 
 const roleManagement: GridColDef[] = [
   {
@@ -250,4 +312,4 @@ const generateAtaGroupColumn: GridColDef[] = [
   },
 ];
 
-export { dashboardColumns, dosDontMaster, machineMaster, ataMaster, aircraftMaster, userManagement, roleManagement, generateAtaGroupColumn };
+export { dashboardColumns, dosDontMaster, machineMaster, ataMaster, aircraftMaster, userManagement, roleManagement, generateAtaGroupColumn,dashboardCandidateColumns };

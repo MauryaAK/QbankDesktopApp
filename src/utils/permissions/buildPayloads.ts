@@ -322,14 +322,14 @@ export const buildQuestionPayload = (
     bookTitle: form.bookTitle,
     chapter: form.chapter,
     topic: form.topic,
-    page: form.page,
+    page: Number(form.page),
 
     answer1: form.answer1,
     answer2: form.answer2,
     answer3: form.answer3,
 
     correctAnswer: form.correctAnswer,
-    reason: form.reason,
+    reason: form.reason ? form.reason : null,
     isActive: form.isActive,
 
     userId,

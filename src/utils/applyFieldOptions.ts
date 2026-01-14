@@ -3,8 +3,8 @@ import { FieldSchema } from "../components/common/EditModal";
 type SelectSource<T> = {
   field: string;               // field name in schema
   data: T[];                   // API data
-  labelKey: keyof T;
-  valueKey: keyof T;
+  labelKey: any;
+  valueKey: any;
 };
 
 export const attachSelectOptions = <T>(

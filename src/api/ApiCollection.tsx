@@ -114,6 +114,12 @@ export const getQuestionList = async ({ queryKey }: any) => {
     `/Question/GetQuestionMaster?UserId=${userId}&IsDashboard=True`
   );
 };
+export const getQuestionListForQuestionPage = async ({ queryKey }: any) => {
+  const [, userId] = queryKey;
+  return axiosInstance.get(
+    `/Question/GetQuestionMaster?UserId=${userId}&IsDashboard=False`
+  );
+};
 
 export const addEditQuestion = async (payload) => {
   return axiosInstance.post("/Question/AddEditQuestion", payload)

@@ -500,6 +500,7 @@ interface DataTableProps {
   onRefreshClick?: (row: any) => void;
   onRadioSelect?: (row: any) => void;
   onQuestionStatusChange?: (row: any) => void;
+  rowBgEnabled?: boolean
 }
 
 /* ================= COMPONENT ================= */
@@ -519,7 +520,8 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
       onRefreshClick,
       onRadioSelect,
       actionConfig,
-      onQuestionStatusChange
+      onQuestionStatusChange,
+      rowBgEnabled = false
     },
     ref
   ) => {
@@ -592,7 +594,7 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
                   e.stopPropagation();
                   onStatusClick?.(params.row);
                 }}
-                className={`
+                className={`w-16
         px-3 py-[2px] text-xs font-semibold rounded-full border
         transition-colors duration-150
         ${params.row?.isActive
@@ -763,9 +765,38 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
             getRowHeight={(params) =>
               params.model?.__expanded ? "auto" : ROW_HEIGHT
             }
-            getRowClassName={(params) =>
-              params.row?.__expanded ? "expanded-row" : ""
-            }
+            getRowClassName={(params) => {
+              const row = params.row;
+              if (row?.__expanded) return "expanded-row";
+
+              if (
+                rowBgEnabled &&
+                row?.isChecked &&
+                row?.isVerified &&
+                row?.isActive
+              ) {
+                return "row-success";
+              }
+              if (
+                rowBgEnabled &&
+                row?.isChecked &&
+                !row?.isVerified &&
+                row?.isActive
+              ) {
+                return "row-warn";
+              }
+              if (
+                rowBgEnabled &&
+                !row?.isChecked &&
+                !row?.isVerified &&
+                row?.isActive
+              ) {
+                return "row-error";
+              }
+
+              return "row-default";
+            }}
+
             // sx={{
             //   height: "100%",
             //   border: "none",
@@ -798,8 +829,21 @@ const DataTable = forwardRef<DataTableRef, DataTableProps>(
                 maxWidth: "100%",
               },
 
+
               "& .MuiDataGrid-row:hover": {
                 background: "rgba(255,255,255,0.75)",
+              },
+              "& .MuiDataGrid-row.row-default": {
+                background: "rgba(255,255,255,0.55)",
+              },
+              "& .MuiDataGrid-row.row-success": {
+                background: "rgba(118, 181, 130,0.55)",
+              },
+              "& .MuiDataGrid-row.row-warn": {
+                background: "rgba(115, 153, 191,0.55)",
+              },
+              "& .MuiDataGrid-row.row-error": {
+                background: "rgba(224, 141, 152, 130,0.55)",
               },
 
               /* ===== CELL ===== */

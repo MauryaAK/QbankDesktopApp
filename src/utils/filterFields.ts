@@ -10,6 +10,15 @@ const DASHBOARD_FILTER_FIELDS = [
     { key: "page", label: "Page", type: "select" },
 ];
 
+const DASHBOARD_FILTER_FIELDS_FOR_CANDIDATE = [
+    { key: "rollNo", label: "Roll No", type: "select" },
+    { key: "batchId", label: "Batch Id", type: "select" },
+    { key: "result", label: "Result", type: "select" },
+    { key: "examination", label: "Examination", type: "select" },
+    { key: "examDateRange", label: "Exam Date Range", type: "date" },
+    { key: "tillDate", label: "", type: "date" },
+];
+
 const GENERATE_ATA_GROUP = [
     { key: "aircraftType", label: "Aircraft Type", type: "select" },
     {
@@ -24,4 +33,4 @@ const GENERATE_ATA_GROUP = [
 ];
 
 
-export { DASHBOARD_FILTER_FIELDS, GENERATE_ATA_GROUP }
+export { DASHBOARD_FILTER_FIELDS, GENERATE_ATA_GROUP, DASHBOARD_FILTER_FIELDS_FOR_CANDIDATE }

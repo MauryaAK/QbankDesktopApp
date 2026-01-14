@@ -218,51 +218,357 @@
 
 
 
+// import { useRef, useState, useMemo, useCallback } from "react";
+// import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+// import DataTable, { DataTableRef } from "../../components/DataTable";
+// import Footer from "../../components/Footer";
+// import { roleManagement } from "../../utils/tableColumns";
+// import searchIcon from "../../assets/searchIcon.svg";
+
+// import { addEditRoleMaster, getRoleMaster } from "../../api/ApiCollection";
+// import { useAppSelector } from "../../hooks/reduxHooks";
+// import { withRowId } from "../../utils/withRowId";
+
+// import { EditModalShell, EditModalRenderer } from "../../components/common/EditModal";
+// import EditModalFieldWrapper from "../../components/common/EditModal/EditModalFieldWrapper";
+// import ExpandableOptionGroup from "../../components/common/EditModal/ExpandableOptionGroup";
+
+// import { roleFields } from "../../components/common/EditModal/fieldRenderers";
+// import { usePermissionEditor } from "../../hooks/usePermissionEditor";
+// import { buildPermissionPayload } from "../../utils/permissions/buildPayloads";
+// import questionBnkIcon from "../../assets/questionBnkIcon.svg";
+// import { attachSelectOptions } from "../../utils/applyFieldOptions";
+// import { buildEmptyPermissions } from "../../utils/permissions/emptyPermissions";
+// import FormikEditModal from "../../components/common/EditModal/FormikEditModal";
+// import PermissionEffectListener from "../../components/common/EditModal/PermissionEffectListener";
+
+// const RoleManagement = () => {
+//   const queryClient = useQueryClient();
+//   const tableRef = useRef<DataTableRef>(null);
+//   const userId = useAppSelector((s) => s.auth.user?.id);
+//   const [isEdit, setIsEdit] = useState(false)
+//   const [editOpen, setEditOpen] = useState(false);
+//   const [editForm, setEditForm] = useState<any>(null);
+//   const [originalRow, setOriginalRow] = useState<any>(null);
+
+
+//   const permission = usePermissionEditor();
+
+//   const roleQuery: any = useQuery({
+//     queryKey: ["roleMaster", userId],
+//     queryFn: getRoleMaster,
+//     enabled: !!userId,
+//   });
+
+//   console.log("editForm", permission.state);
+
+//   const rows = useMemo(
+//     () => withRowId(roleQuery.data?.roleMasters ?? []),
+//     [roleQuery.data?.roleMasters]
+//   );
+
+//   /* ================= EDIT ================= */
+
+//   const handleEditClick = (row: any) => {
+//     setIsEdit(true)
+//     setOriginalRow(row);
+//     setEditForm({
+//       mode: "edit",
+//       role: row.role,
+//       reportTo: row.sno,
+//       isActive: row.isActive,
+//     });
+//     permission.init(row.rolePermission);
+//     setEditOpen(true);
+//   };
+
+//   /* ================= ADD NEW ================= */
+
+//   const handleAddNew = useCallback(() => {
+//     setIsEdit(false)
+//     setOriginalRow(null);
+//     setEditForm({
+//       mode: "add",
+//       role: "",
+//       reportTo: "",
+//       isActive: true,
+//     });
+//     permission.reset(); // ✅ NO permissions initially
+//     setEditOpen(true);
+//   }, [rows])
+
+//   /* ================= REPORT TO CHANGE ================= */
+
+//   const handleFieldChange = (name: string, value: any) => {
+
+
+//     setEditForm((prev: any) => ({ ...prev, [name]: value }));
+//     if (name === "reportTo") {
+
+//       const parentRole = rows.find((r) => r.sno === value);
+//       if (parentRole) {
+//         console.log("=====++", parentRole);
+//         setOriginalRow(parentRole);
+//         if (!isEdit) {
+//           const emptyPermissions = buildEmptyPermissions(
+//             parentRole.rolePermission
+//           );
+//           permission.init(emptyPermissions);
+//         } else {
+//           // EDIT MODE → use existing permissions
+//           permission.init(parentRole.rolePermission);
+//         }
+//       } else {
+//         permission.reset();
+//         setOriginalRow(null);
+//       }
+//     }
+//   };
+
+
+//   const fieldsWithOptions = useMemo(() => {
+//     return attachSelectOptions(roleFields, [
+//       {
+//         field: "reportTo",
+//         data: rows,
+//         labelKey: "reportTo",
+//         valueKey: "sno",
+//       },
+//     ]);
+//   }, [rows]);
+
+//   const mutation = useMutation({
+//     mutationFn: addEditRoleMaster,
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ["roleMaster"] });
+//       setEditOpen(false);
+//     },
+//   });
+
+//   const handleSubmit = () => {
+//     console.log("originalRow==>", originalRow);
+
+//     if (!userId) return;
+//     mutation.mutate(
+//       buildPermissionPayload(
+//         originalRow,
+//         editForm,
+//         permission.state,
+//         userId
+//       )
+//     );
+//   };
+
+//   return (
+//     <div className="h-screen flex flex-col">
+//       <div className="mx-20 mt-5 mt-5">
+//         <div className="flex items-center justify-between shrink-0 mt-[1%] ">
+//           <div className="flex gap-6 items-center">
+//             <button
+//               onClick={() => console.log("Question Bank clicked")}
+//               className="flex items-center gap-2 focus:outline-none hover:opacity-80"
+//             >
+//               <img
+//                 src={questionBnkIcon}
+//                 alt="Question Bank"
+//                 className="w-12 h-12"
+//               />
+//               <span className="text-md font-extrabold text-black">
+//                 Role Management
+//               </span>
+//             </button>
+
+
+//           </div>
+
+//           {/* ===== SEARCH (UI ONLY – NO LOGIC CHANGE) ===== */}
+//           <div
+//             className="
+//                   flex items-center
+//                   w-[17%] h-8
+//                   rounded-xl
+//                   bg-[#C3BFBF]
+//                   border border-red-200
+//                   shadow-sm
+//                   px-2
+//                   mt-6
+//                   mr-0
+//                 "
+//           >
+//             <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+//               <img
+//                 src={searchIcon}
+//                 alt="Search"
+//                 className="w-8 h-8 mr-16"
+//               />
+//             </div>
+
+//             <input
+
+//               placeholder="Search"
+//               className="
+//                     flex-1
+//                     bg-transparent
+//                     px-4
+//                     text-sm
+//                     placeholder-gray-600
+//                     focus:outline-none
+//                     focus:ring-0
+//                   "
+//               onChange={(e) =>
+//                 tableRef.current?.setSearch(
+//                   e.target.value
+//                 )
+//               }
+//             />
+//           </div>
+//         </div>
+
+//         <div className="flex overflow-hidden mt-5 h-[450px]">
+//           <DataTable
+//             ref={tableRef}
+//             columns={roleManagement}
+//             rows={rows}
+//             includeActionColumn
+//             actionConfig={{ edit: true }}
+//             onEditClick={handleEditClick}
+//           />
+//         </div>
+//       </div>
+
+//       <Footer
+//         buttons={[
+//           { label: "Add New", onClick: handleAddNew },
+//         ]}
+//       />
+
+//       {editOpen && editForm && (
+//         <FormikEditModal
+//           open={editOpen}
+//           title={isEdit ? "Edit Role" : "Add Role"}
+//           leftTitle={isEdit ? "Edit Role" : "Add Role"}
+//           fields={fieldsWithOptions}
+//           initialValues={editForm}
+//           onClose={() => setEditOpen(false)}
+//           onSubmit={(values) =>
+//             mutation.mutate(
+//               buildPermissionPayload(
+//                 originalRow,
+//                 values,
+//                 permission.state,
+//                 userId,
+//                 !isEdit
+//               )
+//             )
+//           }
+//         >
+//           <PermissionEffectListener
+//             rows={rows}
+//             isEdit={isEdit}
+//             permission={permission}
+//             setOriginalRow={setOriginalRow}
+//           />
+
+//           {permission.groups.length > 0 && (
+//             <EditModalFieldWrapper label="Permission" required>
+//               <ExpandableOptionGroup
+//                 groups={permission.groups}
+//                 value={permission.value}
+//                 expanded={permission.expanded}
+//                 onToggleGroup={permission.toggleGroup}
+//                 onChange={permission.toggleOption}
+//               />
+//             </EditModalFieldWrapper>
+//           )}
+//         </FormikEditModal>
+//       )}
+
+//     </div>
+//   );
+// };
+
+// export default RoleManagement;
+
+
+
+
+
 import { useRef, useState, useMemo, useCallback } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import DataTable, { DataTableRef } from "../../components/DataTable";
 import Footer from "../../components/Footer";
+import Loader from "../../components/common/Loader";
+
 import { roleManagement } from "../../utils/tableColumns";
 import searchIcon from "../../assets/searchIcon.svg";
+import questionBnkIcon from "../../assets/questionBnkIcon.svg";
 
-import { addEditRoleMaster, getRoleMaster } from "../../api/ApiCollection";
+import {
+  addEditRoleMaster,
+  getRoleMaster,
+} from "../../api/ApiCollection";
+
 import { useAppSelector } from "../../hooks/reduxHooks";
 import { withRowId } from "../../utils/withRowId";
 
-import { EditModalShell, EditModalRenderer } from "../../components/common/EditModal";
-import EditModalFieldWrapper from "../../components/common/EditModal/EditModalFieldWrapper";
-import ExpandableOptionGroup from "../../components/common/EditModal/ExpandableOptionGroup";
+import {
+  roleFields,
+} from "../../components/common/EditModal/fieldRenderers";
 
-import { roleFields } from "../../components/common/EditModal/fieldRenderers";
 import { usePermissionEditor } from "../../hooks/usePermissionEditor";
 import { buildPermissionPayload } from "../../utils/permissions/buildPayloads";
-import questionBnkIcon from "../../assets/questionBnkIcon.svg";
 import { attachSelectOptions } from "../../utils/applyFieldOptions";
 import { buildEmptyPermissions } from "../../utils/permissions/emptyPermissions";
+
 import FormikEditModal from "../../components/common/EditModal/FormikEditModal";
+import EditModalFieldWrapper from "../../components/common/EditModal/EditModalFieldWrapper";
+import ExpandableOptionGroup from "../../components/common/EditModal/ExpandableOptionGroup";
 import PermissionEffectListener from "../../components/common/EditModal/PermissionEffectListener";
+import AlertModal from "../../components/common/AlertModal/AlertModal";
+import { useAlert } from "../../hooks/useAlert";
+
+/* ================= TYPES ================= */
+
+type EditFormState = {
+  mode: "add" | "edit";
+  role: string;
+  reportTo: string | number;
+  isActive: boolean;
+} | null;
+
+/* ================= COMPONENT ================= */
 
 const RoleManagement = () => {
-  const queryClient = useQueryClient();
+  /* ===== REFS ===== */
   const tableRef = useRef<DataTableRef>(null);
+
+  /* ===== GLOBAL STATE ===== */
   const userId = useAppSelector((s) => s.auth.user?.id);
-  const [isEdit, setIsEdit] = useState(false)
-  const [editOpen, setEditOpen] = useState(false);
-  const [editForm, setEditForm] = useState<any>(null);
+  const queryClient = useQueryClient();
+
+  /* ===== LOCAL STATE ===== */
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [editOpen, setEditOpen] = useState<boolean>(false);
+  const [editForm, setEditForm] = useState<EditFormState>(null);
   const [originalRow, setOriginalRow] = useState<any>(null);
 
-
+  /* ===== PERMISSION EDITOR ===== */
   const permission = usePermissionEditor();
 
+  /* ===== API: ROLE MASTER ===== */
   const roleQuery: any = useQuery({
     queryKey: ["roleMaster", userId],
     queryFn: getRoleMaster,
     enabled: !!userId,
   });
 
-  console.log("editForm", permission.state);
-
+  /* ===== TABLE ROWS ===== */
   const rows = useMemo(
     () => withRowId(roleQuery.data?.roleMasters ?? []),
     [roleQuery.data?.roleMasters]
@@ -271,14 +577,16 @@ const RoleManagement = () => {
   /* ================= EDIT ================= */
 
   const handleEditClick = (row: any) => {
-    setIsEdit(true)
+    setIsEdit(true);
     setOriginalRow(row);
+
     setEditForm({
       mode: "edit",
       role: row.role,
       reportTo: row.sno,
       isActive: row.isActive,
     });
+
     permission.init(row.rolePermission);
     setEditOpen(true);
   };
@@ -286,48 +594,26 @@ const RoleManagement = () => {
   /* ================= ADD NEW ================= */
 
   const handleAddNew = useCallback(() => {
-    setIsEdit(false)
+    setIsEdit(false);
     setOriginalRow(null);
+
     setEditForm({
       mode: "add",
       role: "",
       reportTo: "",
       isActive: true,
     });
-    permission.reset(); // ✅ NO permissions initially
+
+    permission.reset();
     setEditOpen(true);
-  }, [rows])
+  }, []);
 
-  /* ================= REPORT TO CHANGE ================= */
-
-  const handleFieldChange = (name: string, value: any) => {
+  /* ================= FIELD CHANGE ================= */
 
 
-    setEditForm((prev: any) => ({ ...prev, [name]: value }));
-    if (name === "reportTo") {
+  /* ================= FIELD OPTIONS ================= */
 
-      const parentRole = rows.find((r) => r.sno === value);
-      if (parentRole) {
-        console.log("=====++", parentRole);
-        setOriginalRow(parentRole);
-        if (!isEdit) {
-          const emptyPermissions = buildEmptyPermissions(
-            parentRole.rolePermission
-          );
-          permission.init(emptyPermissions);
-        } else {
-          // EDIT MODE → use existing permissions
-          permission.init(parentRole.rolePermission);
-        }
-      } else {
-        permission.reset();
-        setOriginalRow(null);
-      }
-    }
-  };
-
-
-  const fieldsWithOptions = useMemo(() => {
+  const fieldsWithOptions: any = useMemo(() => {
     return attachSelectOptions(roleFields, [
       {
         field: "reportTo",
@@ -338,117 +624,58 @@ const RoleManagement = () => {
     ]);
   }, [rows]);
 
+  /* ================= MUTATION ================= */
+  const { alert, showAlert, hideAlert } = useAlert();
   const mutation = useMutation({
     mutationFn: addEditRoleMaster,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["roleMaster"] });
+    onSuccess: (result: any) => {
+      if (result?.isError) {
+        showAlert({
+          title: "Error",
+          message: <div className="font-bold">{result?.errorMessage}</div>,
+          variant: "error",
+          showActionButtons: false,
+          onClose: hideAlert,
+        });
+      }
+      queryClient.invalidateQueries({
+        queryKey: ["roleMaster"],
+      });
       setEditOpen(false);
     },
   });
 
-  const handleSubmit = () => {
-    console.log("originalRow==>", originalRow);
+  /* ================= LOADING ================= */
 
-    if (!userId) return;
-    mutation.mutate(
-      buildPermissionPayload(
-        originalRow,
-        editForm,
-        permission.state,
-        userId
-      )
-    );
-  };
+  const isPageLoading =
+    roleQuery.isLoading || mutation.isPending;
+
+  /* ================= RENDER ================= */
 
   return (
-    // <div className="h-screen flex flex-col">
-    //   <div className="mx-20 mt-5">
-
-    //     {/* HEADER + SEARCH (UNCHANGED) */}
-    //     {/* ... SAME CODE AS YOURS ... */}
-
-    //     <div className="flex overflow-hidden mt-5 h-[450px]">
-    //       <DataTable
-    //         ref={tableRef}
-    //         columns={roleManagement}
-    //         rows={rows}
-    //         includeActionColumn
-    //         actionConfig={{ edit: true }}
-    //         onEditClick={handleEditClick}
-    //       />
-    //     </div>
-    //   </div>
-
-    //   <Footer
-    //     buttons={[
-    //       { label: "Add New", onClick: handleAddNew },
-    //     ]}
-    //   />
-
-    // {editOpen && editForm && (
-    //   <EditModalShell
-    //     open={editOpen}
-    //     title={originalRow ? "Edit Role" : "Add Role"}
-    //     leftTitle={originalRow ? "Edit Role" : "Add Role"}
-    //     onClose={() => setEditOpen(false)}
-    //     onSubmit={handleSubmit}
-    //   >
-    //     <EditModalRenderer
-    //       fields={fieldsWithOptions}
-    //       values={editForm}
-    //       onChange={handleFieldChange}
-    //     />
-
-    //     {/* ✅ SHOW ONLY WHEN PERMISSIONS EXIST */}
-    //     {permission.groups.length > 0 && (
-    //       <EditModalFieldWrapper label="Permission" required>
-    //         <ExpandableOptionGroup
-    //           groups={permission.groups}
-    //           value={permission.value}
-    //           expanded={permission.expanded}
-    //           onToggleGroup={permission.toggleGroup}
-    //           onChange={permission.toggleOption}
-    //         />
-    //       </EditModalFieldWrapper>
-    //     )}
-    //   </EditModalShell>
-    // )}
-    // </div>
     <div className="h-screen flex flex-col">
-      <div className="mx-20 mt-5 mt-5">
-        <div className="flex items-center justify-between shrink-0 mt-[1%] ">
+      <Loader visible={isPageLoading} fullscreen />
+      <AlertModal {...alert} onClose={hideAlert} />
+      <div className="mx-20 mt-5">
+        {/* ===== HEADER ===== */}
+        <div className="flex items-center justify-between shrink-0 mt-[1%]">
           <div className="flex gap-6 items-center">
             <button
-              onClick={() => console.log("Question Bank clicked")}
               className="flex items-center gap-2 focus:outline-none hover:opacity-80"
             >
               <img
                 src={questionBnkIcon}
-                alt="Question Bank"
+                alt="Role Management"
                 className="w-12 h-12"
               />
               <span className="text-md font-extrabold text-black">
                 Role Management
               </span>
             </button>
-
-
           </div>
 
-          {/* ===== SEARCH (UI ONLY – NO LOGIC CHANGE) ===== */}
-          <div
-            className="
-                  flex items-center
-                  w-[17%] h-8
-                  rounded-xl
-                  bg-[#C3BFBF]
-                  border border-red-200
-                  shadow-sm
-                  px-2
-                  mt-6
-                  mr-0
-                "
-          >
+          {/* ===== SEARCH ===== */}
+          <div className="flex items-center w-[17%] h-8 rounded-xl bg-[#C3BFBF] border border-red-200 shadow-sm px-2 mt-6">
             <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0">
               <img
                 src={searchIcon}
@@ -458,26 +685,16 @@ const RoleManagement = () => {
             </div>
 
             <input
-
               placeholder="Search"
-              className="
-                    flex-1
-                    bg-transparent
-                    px-4
-                    text-sm
-                    placeholder-gray-600
-                    focus:outline-none
-                    focus:ring-0
-                  "
+              className="flex-1 bg-transparent px-4 text-sm placeholder-gray-600 focus:outline-none"
               onChange={(e) =>
-                tableRef.current?.setSearch(
-                  e.target.value
-                )
+                tableRef.current?.setSearch(e.target.value)
               }
             />
           </div>
         </div>
 
+        {/* ===== TABLE ===== */}
         <div className="flex overflow-hidden mt-5 h-[450px]">
           <DataTable
             ref={tableRef}
@@ -490,12 +707,14 @@ const RoleManagement = () => {
         </div>
       </div>
 
+      {/* ===== FOOTER ===== */}
       <Footer
         buttons={[
           { label: "Add New", onClick: handleAddNew },
         ]}
       />
 
+      {/* ===== EDIT / ADD MODAL ===== */}
       {editOpen && editForm && (
         <FormikEditModal
           open={editOpen}
@@ -503,6 +722,7 @@ const RoleManagement = () => {
           leftTitle={isEdit ? "Edit Role" : "Add Role"}
           fields={fieldsWithOptions}
           initialValues={editForm}
+          type={isEdit}
           onClose={() => setEditOpen(false)}
           onSubmit={(values) =>
             mutation.mutate(
@@ -524,7 +744,10 @@ const RoleManagement = () => {
           />
 
           {permission.groups.length > 0 && (
-            <EditModalFieldWrapper label="Permission" required>
+            <EditModalFieldWrapper
+              label="Permission"
+              required
+            >
               <ExpandableOptionGroup
                 groups={permission.groups}
                 value={permission.value}
@@ -536,7 +759,6 @@ const RoleManagement = () => {
           )}
         </FormikEditModal>
       )}
-
     </div>
   );
 };

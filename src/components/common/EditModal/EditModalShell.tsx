@@ -12,6 +12,7 @@ interface EditModalShellProps {
   onClose: () => void;
   onSubmit: () => void;
   loading?: boolean;
+  type?: boolean;
 }
 
 const EditModalShell: React.FC<EditModalShellProps> = ({
@@ -22,6 +23,7 @@ const EditModalShell: React.FC<EditModalShellProps> = ({
   onClose,
   onSubmit,
   loading,
+  type
 }) => {
   if (!open) return null;
 
@@ -97,7 +99,7 @@ const EditModalShell: React.FC<EditModalShellProps> = ({
                   disabled={loading}
                   className="px-6 py-2 rounded-md bg-gradient-to-r from-[#DA0E29] to-[#740716] text-white"
                 >
-                  Update
+                  {type ? "Update" : "Add"}
                 </button>
 
                 <button

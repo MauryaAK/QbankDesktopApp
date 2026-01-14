@@ -14,6 +14,7 @@ interface Props {
   onClose: () => void;
   loading?: boolean;
   children?: React.ReactNode;
+  type?:boolean;
 }
 
 const FormikEditModal = ({
@@ -26,6 +27,7 @@ const FormikEditModal = ({
   onClose,
   loading,
   children,
+  type
 }: Props) => {
   return (
     <Formik
@@ -36,6 +38,7 @@ const FormikEditModal = ({
     >
       {(formik) => (
         <EditModalShell
+          type={type}
           open={open}
           title={title}
           leftTitle={leftTitle}
