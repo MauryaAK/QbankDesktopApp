@@ -286,7 +286,7 @@ const EditModalRenderer = ({
   return (
     <div className="space-y-3">
       {fields.map((field) => {
-        const error = touched[field.name] && errors[field.name];
+        const error:any = touched[field.name] && errors[field.name];
         const isDisabled =
           typeof field.disabled === "function"
             ? field.disabled(values)

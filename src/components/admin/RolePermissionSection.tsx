@@ -20,7 +20,7 @@ const PermissionAccordion = ({
 
   return (
     <div className="space-y-4 mt-6">
-      {permissions.map((group) => {
+      {permissions.map((group:any) => {
         const isOpen = open[group.key] ?? true;
 
         return (

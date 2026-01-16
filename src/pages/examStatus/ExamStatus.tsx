@@ -1,6 +1,5 @@
 import { useState } from "react";
 import DataTable from "../../components/DataTable";
-import { testData } from "../../pages/ProductTestData";
 import FilterSection from "../../components/common/FilterSection";
 import Footer from "../../components/Footer";
 import { DASHBOARD_FILTER_FIELDS } from "../../utils/filterFields";
@@ -19,7 +18,7 @@ const ExamStatus = () => {
             <div className="flex-1 mx-20">
                 <div className=" ">
                     <FilterSection
-                        fields={DASHBOARD_FILTER_FIELDS}
+                        fields={[]}
                         onChange={handleFiltersChange}
                     />
                     <div className="flex flex-col flex-1 overflow-hidden">
@@ -36,9 +35,8 @@ const ExamStatus = () => {
                         </div>
                         <div className="flex overflow-hidden mt-0 h-96">
                             <DataTable
-                                slug="question-bank"
                                 columns={dashboardColumns}
-                                rows={testData}
+                                rows={[]}
                                 includeActionColumn={false}
                                 visibleRows={visibleRows}
                             />
