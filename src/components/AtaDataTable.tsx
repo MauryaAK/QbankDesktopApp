@@ -4,6 +4,10 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
+import {
+  GridCellModesModel,
+  GridCellModes,
+} from "@mui/x-data-grid";
 import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 import {
   DataGrid,
@@ -110,9 +114,18 @@ const AtaDataTable = forwardRef<DataTableRef, DataTableProps>(
     },
     ref
   ) => {
+    const [updatedValues, setUpdatedValues] = useState([])
+
+
+    const totalDuration = useMemo(() => updatedValues.reduce((sum, item) => sum + (item.duration ?? 0), 0), [updatedValues]);
+    const totalS1 = useMemo(() => updatedValues.reduce((sum, item) => sum + (item.S1 ?? 0), 0), [updatedValues]);
+    const totalS2 = useMemo(() => updatedValues.reduce((sum, item) => sum + (item.S2 ?? 0), 0), [updatedValues]);
+    const totalS3 = useMemo(() => updatedValues.reduce((sum, item) => sum + (item.S3 ?? 0), 0), [updatedValues]);
+
     const isMobile = useIsMobile();
     const apiRef = useGridApiRef();
-
+    const [cellModesModel, setCellModesModel] =
+      useState<GridCellModesModel>({});
     const ROW_HEIGHT = 28;
     const HEADER_HEIGHT = 30;
     const DEFAULT_PAGE_SIZE = 50;
@@ -124,16 +137,46 @@ const AtaDataTable = forwardRef<DataTableRef, DataTableProps>(
     const [currentPage, setCurrentPage] = useState(1);
 
     const totalPages = Math.ceil(rows.length / pageSize);
+    const [editedRowsMap, setEditedRowsMap] = useState<
+      Record<string | number, any>
+    >({});
+    const getRowId = (row: any) => row.id;
+    const applyDurationMapping = (row: any) => {
+      const duration = Number(row.duration) || 0;
 
+      return {
+        ...row,
+        S1: row.complexity === 1 || row.complexity === 0 ? duration : 0,
+        S2: row.complexity === 2 ? duration : 0,
+        S3: row.complexity === 3 ? duration : 0,
+      };
+    };
+
+    const mergedRowsWithEdits = useMemo(() => {
+      if (!Object.keys(editedRowsMap).length) return rows;
+
+      return rows.map((row) => {
+        const id = getRowId(row);
+        return editedRowsMap[id] ? editedRowsMap[id] : row;
+      });
+    }, [rows, editedRowsMap]);
+
+    // const paginatedBaseRows = useMemo(() => {
+    //   const start = (currentPage - 1) * pageSize;
+    //   const end = start + pageSize;
+    //   return rows.slice(start, end);
+    // }, [rows, currentPage, pageSize]);
     const paginatedBaseRows = useMemo(() => {
       const start = (currentPage - 1) * pageSize;
       const end = start + pageSize;
-      return rows.slice(start, end);
-    }, [rows, currentPage, pageSize]);
+      return mergedRowsWithEdits.slice(start, end);
+    }, [mergedRowsWithEdits, currentPage, pageSize]);
+
 
     const [expandedRowId, setExpandedRowId] = useState<
       string | number | null
     >(null);
+
 
     useImperativeHandle(ref, () => ({
       setSearch(value: string) {
@@ -142,7 +185,6 @@ const AtaDataTable = forwardRef<DataTableRef, DataTableProps>(
     }));
 
     /* 🔑 USE id EVERYWHERE */
-    const getRowId = (row: any) => row.id;
 
     const computedRows = useMemo(() => {
       if (!isExpandable || expandedRowId == null)
@@ -164,24 +206,69 @@ const AtaDataTable = forwardRef<DataTableRef, DataTableProps>(
       return copy;
     }, [paginatedBaseRows, expandedRowId, isExpandable]);
 
-const [editedRowsMap, setEditedRowsMap] = useState<
-  Record<string | number, any>
->({});
+
+
+    // const processRowUpdate = (newRow: any, oldRow: any) => {
+    //   if (JSON.stringify(newRow) !== JSON.stringify(oldRow)) {
+    //     setEditedRowsMap((prev) => {
+    //       const updated = {
+    //         ...prev,
+    //         [getRowId(newRow)]: newRow,
+    //       };
+
+    //       onRowsEditChange?.(Object.values(updated));
+    //       return updated;
+    //     });
+    //   }
+
+    //   return newRow; // MUST return row
+    // };
+
     const processRowUpdate = (newRow: any, oldRow: any) => {
-  if (JSON.stringify(newRow) !== JSON.stringify(oldRow)) {
-    setEditedRowsMap((prev) => {
-      const updated = {
-        ...prev,
-        [getRowId(newRow)]: newRow,
-      };
+      let updatedRow = { ...newRow };
 
-      onRowsEditChange?.(Object.values(updated));
-      return updated;
-    });
-  }
+      const durationChanged = newRow.duration !== oldRow.duration;
+      const complexityChanged = newRow.complexity !== oldRow.complexity;
 
-  return newRow; // MUST return row
-};
+      if (durationChanged || complexityChanged) {
+        const duration = Number(newRow.duration) || 0;
+
+        updatedRow = {
+          ...updatedRow,
+          S1: 0,
+          S2: 0,
+          S3: 0,
+        };
+
+        if (newRow.complexity === 1 || newRow.complexity === 0) {
+          updatedRow.S1 = duration;
+        }
+
+        if (newRow.complexity === 2) {
+          updatedRow.S2 = duration;
+        }
+
+        if (newRow.complexity === 3) {
+          updatedRow.S3 = duration;
+        }
+      }
+
+      // Track edited rows
+      if (JSON.stringify(updatedRow) !== JSON.stringify(oldRow)) {
+        setEditedRowsMap((prev) => {
+          const updated = {
+            ...prev,
+            [getRowId(updatedRow)]: updatedRow,
+          };
+
+          onRowsEditChange?.(Object.values(updated));
+          setUpdatedValues(Object.values(updated))
+          return updated;
+        });
+      }
+
+      return updatedRow; // 🔑 REQUIRED
+    };
 
     /* ================= ACTION COLUMNS ================= */
 
@@ -276,28 +363,95 @@ const [editedRowsMap, setEditedRowsMap] = useState<
       ]
       : [];
 
+    // const mergedColumns = useMemo<GridColDef[]>(() => {
+    //   const baseCols = columns.map((col, index) => ({
+    //     ...col,
+    //     renderCell: (params: any) => {
+    //       if (params.colDef.editable) {
+    //         return params.value; // 🔑 allow MUI editor
+    //       }
+    //       if (!params.row?.__expanded) {
+    //         return <CellWithHoverTooltip value={params.value} />;
+    //       }
+
+    //       if (showExpandedColumn.includes(index)) {
+    //         return (
+    //           <div className="w-full px-4 py-3">
+    //             {renderExpandedRow?.(
+    //               params.row.parentRow
+    //             )}
+    //           </div>
+    //         );
+    //       }
+    //       return null;
+    //     },
+    //   }));
+
+    //   if (!isExpandable) {
+    //     return [...baseCols, ...actionColumns];
+    //   }
+
+    //   return [
+    //     ...baseCols,
+    //     ...actionColumns,
+    //     {
+    //       field: "__expand",
+    //       headerName: "",
+    //       width: 36,
+    //       renderCell: (params) => {
+    //         if (params.row?.__expanded) return null;
+
+    //         const rowId = getRowId(params.row);
+    //         const isOpen = expandedRowId === rowId;
+
+    //         return (
+    //           <button
+    //             onClick={(e) => {
+    //               e.stopPropagation();
+    //               setExpandedRowId(isOpen ? null : rowId);
+    //             }}
+    //           >
+    //             {isOpen ? (
+    //               <HiChevronDown size={14} />
+    //             ) : (
+    //               <HiChevronRight size={14} />
+    //             )}
+    //           </button>
+    //         );
+    //       },
+    //     },
+    //   ];
+    // }, [
+    //   columns,
+    //   expandedRowId,
+    //   isExpandable,
+    //   actionColumns,
+    // ]);
+
+
     const mergedColumns = useMemo<GridColDef[]>(() => {
       const baseCols = columns.map((col, index) => ({
         ...col,
-        renderCell: (params: any) => {
-          if (params.colDef.editable) {
-            return params.value; // 🔑 allow MUI editor
-          }
-          if (!params.row?.__expanded) {
-            return <CellWithHoverTooltip value={params.value} />;
-          }
+        renderCell: col.renderCell
+          ? col.renderCell
+          : (params: any) => {
+            if (params.colDef.editable) {
+              return params.value;
+            }
 
-          if (showExpandedColumn.includes(index)) {
-            return (
-              <div className="w-full px-4 py-3">
-                {renderExpandedRow?.(
-                  params.row.parentRow
-                )}
-              </div>
-            );
-          }
-          return null;
-        },
+            if (!params.row?.__expanded) {
+              return <CellWithHoverTooltip value={params.value} />;
+            }
+
+            if (showExpandedColumn.includes(index)) {
+              return (
+                <div className="w-full px-4 py-3">
+                  {renderExpandedRow?.(params.row.parentRow)}
+                </div>
+              );
+            }
+            return null;
+          },
       }));
 
       if (!isExpandable) {
@@ -324,22 +478,14 @@ const [editedRowsMap, setEditedRowsMap] = useState<
                   setExpandedRowId(isOpen ? null : rowId);
                 }}
               >
-                {isOpen ? (
-                  <HiChevronDown size={14} />
-                ) : (
-                  <HiChevronRight size={14} />
-                )}
+                {isOpen ? <HiChevronDown size={14} /> : <HiChevronRight size={14} />}
               </button>
             );
           },
         },
       ];
-    }, [
-      columns,
-      expandedRowId,
-      isExpandable,
-      actionColumns,
-    ]);
+    }, [columns, expandedRowId, isExpandable, actionColumns]);
+
 
     if (isMobile) {
       return (
@@ -376,6 +522,21 @@ const [editedRowsMap, setEditedRowsMap] = useState<
             getRowClassName={(params) =>
               params.row?.__expanded ? "expanded-row" : ""
             }
+            cellModesModel={cellModesModel}
+            onCellModesModelChange={setCellModesModel}
+            onCellClick={(params, event) => {
+              if (params.field === "complexity") {
+                event.stopPropagation();
+
+                setCellModesModel((prev) => ({
+                  ...prev,
+                  [params.id]: {
+                    ...prev[params.id],
+                    complexity: { mode: GridCellModes.Edit },
+                  },
+                }));
+              }
+            }}
             // sx={{
             //   height: "100%",
             //   border: "none",
@@ -476,6 +637,50 @@ const [editedRowsMap, setEditedRowsMap] = useState<
               },
             }}
           />
+        </div>
+        <div className="h-6 w-full bg-[#FDF1D2] flex border border-gray-300 rounded-lg text-[11px] text-gray-600 font-normal">
+          <div className="h-full w-16 flex items-center justify-center  border-gray-300">
+           
+          </div>
+
+          <div className="h-full w-24 flex items-center justify-center  border-gray-300">
+           
+          </div>
+
+          <div className="h-full flex-[2] flex items-center justify-center  border-gray-300">
+           
+          </div>
+
+          <div className="h-full w-16 flex items-center justify-center  border-gray-300">
+           
+          </div>
+
+          <div className="h-full w-16 flex items-center justify-center  border-gray-300">
+           
+          </div>
+
+          <div className="h-full w-16 flex items-center justify-center  border-gray-300">
+           
+          </div>
+
+          <div className="h-full flex-1 flex items-center justify-center  border-gray-300 font-medium text-gray-700 tracking-tight">
+          </div>
+
+          <div className="h-full flex-1 flex items-center justify-center font-bold text-black">
+            Total Duration -  {totalDuration}
+          </div>
+
+          <div className="h-full w-16 flex items-center justify-center  border-gray-300 font-semibold text-gray-700">
+            {totalS1}
+          </div>
+
+          <div className="h-full w-16 flex items-center justify-center  border-gray-300 font-semibold text-gray-700">
+            {totalS2}
+          </div>
+
+          <div className="h-full w-16 flex items-center justify-center font-semibold text-gray-700">
+            {totalS3}
+          </div>
         </div>
 
 

@@ -157,6 +157,24 @@ export const getRegisteredAta = async () => {
   return axiosInstance.get(`/Examination/GetRegisteredAta`);
 };
 
+export const generateAtaGroup = async (payload) => {
+  return axiosInstance.post("/Examination/GenerateAtaGroup", payload)
+};
+
+export const getCandidateMaster = async () => {
+  return axiosInstance.get("/Examination/GetCandidateMaster")
+};
+
+export const getGeneratedAta = async () => {
+  return axiosInstance.get("/Examination/GetGeneratedAta")
+};
+export const getAtaForVerification = async () => {
+  return axiosInstance.get("/Examination/GetAtaForVerification")
+};
+export const getAtaForExamGeneration = async () => {
+  return axiosInstance.get("/Examination/GetAtaForExamGeneration")
+};
+
 
 
 

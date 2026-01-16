@@ -250,19 +250,16 @@ const generateAtaGroupColumn: GridColDef[] = [
     flex: 4,
   },
   {
-    type: 'number',
     field: "avaiableQuestion1",
     headerName: "A1",
     flex: 1,
   },
   {
-    type: 'number',
     field: "avaiableQuestion2",
     headerName: "A2",
     flex: 1,
   },
   {
-    type: 'number',
     field: "avaiableQuestion3",
     headerName: "A3",
     flex: 1,
@@ -270,7 +267,7 @@ const generateAtaGroupColumn: GridColDef[] = [
   {
     field: "complexity",
     headerName: "Complexity",
-    flex: 2,
+    flex: 1.5,
 
     editable: true,          // 🔑 REQUIRED
     type: "singleSelect",    // 🔑 REQUIRED
@@ -282,11 +279,12 @@ const generateAtaGroupColumn: GridColDef[] = [
     ],
   },
 
+
   {
     type: 'number',
     field: "duration",
     headerName: "Duration (Hrs)",
-    flex: 2,
+    flex: 1.5,
     editable: true
   },
   {
@@ -294,22 +292,100 @@ const generateAtaGroupColumn: GridColDef[] = [
     field: "S1",
     headerName: "S1",
     flex: 1,
-    editable: true
+    editable: false
   },
   {
     type: 'number',
     field: "S2",
     headerName: "S2",
     flex: 1,
-    editable: true
+    editable: false
   },
   {
     type: 'number',
     field: "S3",
     headerName: "S3",
     flex: 1,
-    editable: true
+    editable: false
   },
 ];
 
-export { dashboardColumns, dosDontMaster, machineMaster, ataMaster, aircraftMaster, userManagement, roleManagement, generateAtaGroupColumn,dashboardCandidateColumns };
+const registerCandidate: GridColDef[] = [
+  {
+    field: "id",
+    headerName: "S.NO",
+    width: 70,
+  },
+
+  {
+    field: "aircraftType",
+    headerName: "Aircraft Type",
+    flex: 1.5,
+  },
+  {
+    field: "courseID",
+    headerName: "Course ID",
+    flex: 1.2,
+  },
+  {
+    field: "training",
+    headerName: "Training",
+    flex: 1,
+  },
+  {
+    field: "start",
+    headerName: "Start",
+    flex: 1,
+  },
+  {
+    field: "end",
+    headerName: "End",
+    flex: 1,
+  },
+  {
+    field: "emeLicenseNo",
+    headerName: "AME License No",
+    flex: 2,
+  },
+  {
+    field: "name",
+    headerName: "Name",
+    flex: 1,
+  },
+  {
+    field: "email",
+    headerName: "Email Id",
+    flex: 1,
+  },
+  {
+    field: "photo",
+    headerName: "Photo",
+    flex: 1,
+  },
+];
+
+
+const generateExamPaper: GridColDef[] = [
+  {
+    field: "id",
+    headerName: "S.NO",
+    width: 120,
+  },
+  {
+    field: "paperId",
+    headerName: "Paper ID",
+    flex: 1,
+  },
+  {
+    field: "candidate",
+    headerName: "Candidate",
+     flex: 1,
+  },
+  
+];
+
+export {
+  dashboardColumns, dosDontMaster, machineMaster, ataMaster,
+  aircraftMaster, userManagement, roleManagement, generateAtaGroupColumn,
+  dashboardCandidateColumns, registerCandidate,generateExamPaper
+};

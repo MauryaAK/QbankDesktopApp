@@ -29,8 +29,47 @@ const GENERATE_ATA_GROUP = [
     { key: "courseId", label: "Course ID", type: "select" },
     { key: "courseName", label: "Course Name", type: "select" },
     { key: "examPhase", label: "Exam Phase", type: "select" },
-    { key: "ExamDate", label: "Exam Date", type: "date" },
+    { key: "examDate", label: "Exam Date", type: "date" },
+];
+
+const REGISTER_CANDIDATE_FILTER = [
+    { key: "aircraftType", label: "Aircraft Type", type: "select" },
+    {
+        key: "trainingType", label: "Training Type", type: "select"
+    },
+    { key: "licenceNumber", label: "AME License No", type: "select" },
+    { key: "emailId", label: "Email", type: "select" },
+    { key: "courseId", label: "Course ID", type: "select" },
+    { key: "courseName", label: "Course Name", type: "select" },
+    { key: "endDate", label: "Training End Date", type: "date" },
+];
+
+const VALIDATE_QUESTION_PAPER = [
+    { key: "aircraftType", label: "Aircraft Type", type: "select" },
+    { key: "examPhase", label: " Exam Phase", type: "select" },
+    { key: "courseId", label: "Course ID", type: "select" },
+    { key: "examDate", label: "Exam Date", type: "date" },
 ];
 
 
-export { DASHBOARD_FILTER_FIELDS, GENERATE_ATA_GROUP, DASHBOARD_FILTER_FIELDS_FOR_CANDIDATE }
+const GENERATE_EXAM_PAPER = [
+    { key: "aircraftType", label: "Aircraft Type", type: "select" },
+    { key: "examPhase", label: " Exam Phase", type: "select" },
+    { key: "courseId", label: "Course ID", type: "select" },
+    { key: "examDateTime", label: "Exam Date/Time", type: "datetime" },
+    { key: "checkRepeat", label: "Repeat", type: "check" },
+];
+
+const trainingTypeOptions = [
+    { label: "A1", value: "A1" },
+    { label: "B1", value: "B1" },
+    { label: "B2", value: "B2" },
+    { label: "B1+B2", value: "B1+B2" },
+    { label: "C", value: "C" }
+]
+
+
+export {
+    DASHBOARD_FILTER_FIELDS, GENERATE_ATA_GROUP, DASHBOARD_FILTER_FIELDS_FOR_CANDIDATE,
+    REGISTER_CANDIDATE_FILTER, VALIDATE_QUESTION_PAPER, GENERATE_EXAM_PAPER, trainingTypeOptions
+}

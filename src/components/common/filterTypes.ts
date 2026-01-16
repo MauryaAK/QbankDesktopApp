@@ -1,5 +1,5 @@
 // filterTypes.ts
-export type FilterFieldType = "select" | "input" | "date";
+export type FilterFieldType = "select" | "input" | "date"|"datetime"|"check";
 
 export interface BaseFilterField {
   key: string;
@@ -24,8 +24,17 @@ export interface BtnFilterField {
   type: "btn";
 }
 
+export interface DateTimeFilterField extends BaseFilterField  {
+  type: "datetime";
+}
+export interface CheckFilterField extends BaseFilterField  {
+  type: "check";
+}
+
 export type FilterField =
   | SelectFilterField
   | InputFilterField
   | BtnFilterField
-  | DateFilterField;
+  | DateFilterField
+  | DateTimeFilterField
+  |CheckFilterField;

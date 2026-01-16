@@ -1,33 +1,43 @@
+
+
 import { useMemo, useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { addDays } from "date-fns";
+import toast from "react-hot-toast";
 
-import DataTable, { DataTableRef } from "../../components/DataTable";
-import FilterSection from "../../components/common/FilterSection";
+import { DataTableRef } from "../../components/DataTable";
 import Footer from "../../components/Footer";
+import AtaDataTable from "../../components/AtaDataTable";
+import FilterSectionForExam from "../../components/common/FiterSectionForExam";
+import AlertModal from "../../components/common/AlertModal/AlertModal";
+import Loader from "../../components/common/Loader";
 
-import { DASHBOARD_FILTER_FIELDS } from "../../utils/filterFields";
-import { dashboardColumns } from "../../utils/tableColumns";
+import {
+    GENERATE_ATA_GROUP,
+    trainingTypeOptions,
+    VALIDATE_QUESTION_PAPER,
+} from "../../utils/filterFields";
+import { generateAtaGroupColumn } from "../../utils/tableColumns";
+import { buildAtaPhasePayload } from "../../utils/permissions/buildPayloads";
+import { validateRequiredFields } from "../../utils/filterUtils";
+import { withRowId } from "../../utils/withRowId";
+
+import {
+    generateAtaGroup,
+    getAtaForVerification,
+} from "../../api/ApiCollection";
+
+import { useAppSelector } from "../../hooks/reduxHooks";
+import { useAlert } from "../../hooks/useAlert";
 
 import searchIcon from "../../assets/searchIcon.svg";
 import questionBnkIcon from "../../assets/questionBnkIcon.svg";
 
-import {
-    getQuestionList,
-    addEditQuestion,
-    getAtaType,
-} from "../../api/ApiCollection";
-
-import { useAppSelector } from "../../hooks/reduxHooks";
-import { withRowId } from "../../utils/withRowId";
-
-import FormikEditModal from "../../components/common/EditModal/FormikEditModal";
-import { FieldSchema } from "../../components/common/EditModal";
-import { buildQuestionPayload } from "../../utils/permissions/buildPayloads";
-
-/* ================= DASHBOARD FILTER UTILS ================= */
+/* ================= HELPERS ================= */
 
 const getUniqueOptions = (rows: any[], key: string) => {
     const set = new Set<any>();
+
     rows.forEach((row) => {
         const value = row[key];
         if (value !== null && value !== undefined && value !== "") {
@@ -41,347 +51,216 @@ const getUniqueOptions = (rows: any[], key: string) => {
     }));
 };
 
-const applyLocalFilters = (
-    rows: any[],
-    filters: Record<string, any>
-) => {
-    return rows.filter((row) =>
-        Object.entries(filters).every(([key, filterValue]) => {
-            if (!filterValue) return true;
-
-            const actualFilterValue =
-                typeof filterValue === "object" && "value" in filterValue
-                    ? filterValue.value
-                    : filterValue;
-
-            return String(row[key]) === String(actualFilterValue);
-        })
-    );
-};
-
-/* ================= FORM FIELD CONFIG ================= */
-
-const questionFields: FieldSchema[] = [
-    { name: "question", label: "Question", type: "text", required: true },
-
-    { name: "aircraftType", label: "Aircraft Type", type: "select", required: true },
-    { name: "ataCode", label: "ATA", type: "select", required: true },
-    { name: "complexity", label: "Complexity", type: "select", required: true },
-
-    { name: "bookTitle", label: "Book Title", type: "text", required: true },
-    { name: "chapter", label: "Chapter", type: "text", required: true },
-    { name: "topic", label: "Topic", type: "text", required: true },
-    { name: "page", label: "Page", type: "number", required: true },
-
-    { name: "answer1", label: "Answer A", type: "text", required: true },
-    { name: "answer2", label: "Answer B", type: "text", required: true },
-    { name: "answer3", label: "Answer C", type: "text", required: true },
-
-    { name: "correctAnswer", label: "Correct Answer", type: "select", required: true },
-
-    { name: "reason", label: "Reason", type: "text", required: true },
-    { name: "isActive", label: "Status", type: "toggle", required: true },
-];
-
-/* ================= EMPTY FORM ================= */
-
-const EMPTY_QUESTION_FORM = {
-    mode: "add",          // 🔥 important for disable logic
-    question: "",
-    aircraftType: "",
-    ataCode: "",
-    complexity: "",
-    bookTitle: "",
-    chapter: "",
-    topic: "",
-    page: "",
-    answer1: "",
-    answer2: "",
-    answer3: "",
-    correctAnswer: "",
-    reason: "",
-    isActive: true,
-};
-
-/* ================= COMPONENT ================= */
-
 const ValidateQuestionPaper = () => {
     const tableRef = useRef<DataTableRef>(null);
-    const queryClient = useQueryClient();
+
+    const { alert, showAlert, hideAlert } = useAlert();
     const userId = useAppSelector((s) => s.auth.user?.id);
 
-    const [filters, setFilters] = useState<Record<string, any>>({});
-    const [editOpen, setEditOpen] = useState(false);
-    const [editForm, setEditForm] = useState<any>(null);
-    const [originalRow, setOriginalRow] = useState<any>(null);
+    const [filters, setFilters] = useState<Record<string, any>>({
+        trainingStartDate: new Date(),
+        trainingEndDate: addDays(new Date(), 1),
+        examDate: new Date(),
+    });
+
+    const [getEditedRows, setEditedRows] = useState<any[]>([]);
+    const [getPhaseValues, setPhaseValues] = useState<any[]>([]);
+    const [getCurrentRegisterAta, setCurrentRegisterAta] = useState<any>({});
+    const [filterKey, setFilterKey] = useState<number>(0);
+
+    /* ================= ERROR ================= */
+
+    const showError = (message: string) => {
+        showAlert({
+            title: "Error",
+            message: <div className="font-bold">{message}</div>,
+            variant: "error",
+            showActionButtons: false,
+            onClose: hideAlert,
+        });
+    };
+
+    /* ================= VALIDATION ================= */
+
+    const validator = () => {
+        const fieldError = validateRequiredFields({
+            fields: GENERATE_ATA_GROUP,
+            values: filters,
+        });
+
+        if (fieldError) {
+            showError(fieldError);
+            return false;
+        }
+
+        if (getEditedRows.length === 0) {
+            showError("Enter ETA Details");
+            return false;
+        }
+
+        return true;
+    };
+
+    /* ================= MEMO ================= */
+
+    const minMax = useMemo(() => ({ min: addDays(new Date(), -120), max: addDays(new Date(), 120), }), []);
+
 
     /* ================= API ================= */
 
-    const questionQuery: any = useQuery({
-        queryKey: ["questionList", userId],
-        queryFn: getQuestionList,
+    const qetAtaForVerificationQuery: any = useQuery({
+        queryKey: ["getAtaForVerification", userId],
+        queryFn: getAtaForVerification,
         enabled: !!userId,
     });
 
-    const ataQuery: any = useQuery({
-        queryKey: ["ataMaster", userId],
-        queryFn: getAtaType,
-        enabled: !!userId,
-    });
+
 
     const mutation = useMutation({
-        mutationFn: addEditQuestion,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["questionList"] });
-            setEditOpen(false);
+        mutationFn: generateAtaGroup,
+        onSuccess: (result: any) => {
+            if (result?.isError) {
+                showError(result?.errorMessage);
+            } else {
+                toast.success("ATA Generated Successfully");
+            }
         },
     });
 
-    /* ================= TABLE ROWS ================= */
+    /* ================= LOADER (ONLY API CALLS) ================= */
+
+    const isLoading =
+        qetAtaForVerificationQuery.isLoading ||
+        mutation.isPending;
+
+    /* ================= PAYLOAD ================= */
+
+    const payload = useMemo(() => {
+        if (!getCurrentRegisterAta || !filters?.examPhase?.value) return null;
+
+        return buildAtaPhasePayload({
+            registerAta: getCurrentRegisterAta,
+            editedRows: getEditedRows,
+            examPhase: filters.examPhase.value,
+            endDate: filters.examDate,
+            userId,
+        });
+    }, [filters, getCurrentRegisterAta, getEditedRows, userId]);
+
+    /* ================= HANDLERS ================= */
+
+    const handleReset = () => {
+        setFilters({});
+        setFilterKey(Math.random());
+    };
+
+    const handleSubmit = () => {
+        if (validator()) {
+            mutation.mutate(payload);
+        }
+    };
+
+    const handleFields = (values: any) => {
+        setFilters(values);
+    };
+
+    /* ================= TABLE ================= */
 
     const allRows = useMemo(() => {
-        return withRowId(questionQuery?.data?.questions ?? []);
-    }, [questionQuery?.data?.questions]);
-
-    /* ================= OPTION MAPS ================= */
+        const rows = qetAtaForVerificationQuery?.data?.atas ?? [];
+        return withRowId(
+            rows.map((row: any) => ({
+                ...row,
+                avaiableQuestion1: row.avaiableQuestion1 ?? 0,
+                avaiableQuestion2: row.avaiableQuestion2 ?? 0,
+                avaiableQuestion3: row.avaiableQuestion3 ?? 0,
+                complexity: 0,
+                duration: 0,
+                S1: 0,
+                S2: 0,
+                S3: 0,
+            }))
+        );
+    }, [qetAtaForVerificationQuery?.data?.atas]);
 
     const optionMaps = useMemo(() => {
-        const ataMasters = ataQuery?.data?.ataMasters ?? [];
-
-        const ataOptions = ataMasters.map((a: any) => ({
-            label: `${a.ataCode} - ${a.ataDescription}`,
-            value: a.ataCode,
-        }));
-
-        const aircraftTypeOptions = Array.from(
-            new Set(
-                ataMasters.flatMap((a: any) =>
-                    a.aircraftType
-                        ? a.aircraftType.split(",").map((v: string) => v.trim())
-                        : []
-                )
-            )
-        ).map((t) => ({ label: t, value: t }));
-
         return {
-            ataCode: ataOptions,
-            aircraftType: aircraftTypeOptions,
-            complexity: [
-                { label: "1", value: 1 },
-                { label: "2", value: 2 },
-                { label: "3", value: 3 },
-            ],
-            correctAnswer: [
-                { label: "A", value: 1 },
-                { label: "B", value: 2 },
-                { label: "C", value: 3 },
-            ],
+            trainingType: trainingTypeOptions,
+            examPhase: getPhaseValues,
         };
-    }, [ataQuery.data]);
-
-    /* ================= FILTER FIELDS ================= */
+    }, [getPhaseValues]);
 
     const filterFieldsWithOptions: any = useMemo(() => {
-        return DASHBOARD_FILTER_FIELDS.map((field) => ({
+        return VALIDATE_QUESTION_PAPER.map((field) => ({
             ...field,
-            type: "select",
             options:
                 optionMaps[field.key] ??
                 getUniqueOptions(allRows, field.key),
         }));
+
     }, [allRows, optionMaps]);
-    console.log("filters==>", filters);
-
-    const filteredRows = useMemo(() => {
-        return applyLocalFilters(allRows, filters);
-    }, [allRows, filters]);
-
-    /* ================= FORM FIELDS WITH OPTIONS ================= */
-
-    // const questionFieldsWithOptions = useMemo(() => {
-    //     return questionFields.map((field) => {
-    //         if (optionMaps[field.name]) {
-    //             return { ...field, options: optionMaps[field.name] };
-    //         }
-    //         return field;
-    //     });
-    // }, [optionMaps]);
-    const questionFieldsWithOptions = useMemo(() => {
-        return questionFields
-            .filter((field) => {
-                // 🔥 Hide reason field only in ADD mode
-                if (field.name === "reason" && editForm?.mode === "add") {
-                    return false;
-                }
-                return true;
-            })
-            .map((field) => {
-                if (optionMaps[field.name]) {
-                    return { ...field, options: optionMaps[field.name] };
-                }
-                return field;
-            });
-    }, [optionMaps, editForm?.mode]);
-
-
-    /* ================= EDIT / ADD ================= */
-    const handleEditClick = (row: any) => {
-        setOriginalRow(row);
-        setEditForm({
-            mode: "edit",
-            question: row.question ?? "",
-            aircraftType: row.aircraftType ?? "",
-            ataCode: row.ataCode ?? "",
-            complexity: row.complexity ?? "",
-            bookTitle: row.bookTitle ?? "",
-            chapter: row.chapter ?? "",
-            topic: row.topic ?? "",
-            page: row.page ?? "",
-            answer1: row.answer1 ?? "",
-            answer2: row.answer2 ?? "",
-            answer3: row.answer3 ?? "",
-            correctAnswer: row.correctAnswer || "",
-            reason: row.reason ?? "",
-            isActive: !!row.isActive,
-        });
-        setEditOpen(true);
-    };
-
-    const handleAddQuestion = () => {
-        setOriginalRow(null);
-        setEditForm(EMPTY_QUESTION_FORM);
-        setEditOpen(true);
-    };
-
-    /* ================= SUBMIT ================= */
-
-    const handleSubmit = (values: any) => {
-        if (!userId) return;
-
-        const isAddMode = editForm.mode !== "edit";
-
-        const payload = buildQuestionPayload(
-            originalRow,
-            values,
-            userId,
-            isAddMode
-        );
-
-        mutation.mutate({
-            ...payload,
-            ...(isAddMode && {
-                isChecked: false,
-                isVerified: false,
-            }),
-        });
-    };
-
-
-    /* ================= UI ================= */
 
     return (
         <div className="h-screen flex flex-col ">
+            <AlertModal {...alert} />
+            <Loader visible={isLoading} fullscreen />
+
             <div className="mx-20 mt-5">
                 <div>
-                    <FilterSection
-                        showActionButtons
-                        onApply={handleAddQuestion}
+                    <FilterSectionForExam
+                        minMaxDate={minMax}
+                        filters={filters}
+                        setFilters={handleFields}
+                        key={filterKey}
+                        label="Question Paper Validation Form"
                         fields={filterFieldsWithOptions}
-                        onChange={setFilters}
                     />
+
                     <div className="flex flex-col flex-1 overflow-hidden">
-                        {/* ===== HEADER ROW ===== */}
                         <div className="flex items-center justify-between shrink-0 mt-[1%] ">
                             <div className="flex gap-6 items-center">
-                                <button
-                                    onClick={() => console.log("Question Bank clicked")}
-                                    className="flex items-center gap-2 focus:outline-none hover:opacity-80"
-                                >
-                                    <img
-                                        src={questionBnkIcon}
-                                        alt="Question Bank"
-                                        className="w-12 h-12"
-                                    />
+                                <button className="flex items-center gap-2 focus:outline-none hover:opacity-80">
+                                    <img src={questionBnkIcon} className="w-12 h-12" />
                                     <span className="text-md font-extrabold text-black">
-                                        Question Bank- Add Question
+                                        ATA Table
                                     </span>
                                 </button>
                             </div>
 
-                            {/* ===== SEARCH (UI ONLY – NO LOGIC CHANGE) ===== */}
-                            <div
-                                className="
-                  flex items-center
-                  w-[17%] h-8
-                  rounded-xl
-                  bg-[#C3BFBF]
-                  border border-red-200
-                  shadow-sm
-                  px-2
-                  mt-6
-                  mr-0
-                "
-                            >
+                            <div className="flex items-center w-[17%] h-8 rounded-xl bg-[#C3BFBF] border border-red-200 shadow-sm px-2 mt-6 mr-0">
                                 <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0">
-                                    <img
-                                        src={searchIcon}
-                                        alt="Search"
-                                        className="w-8 h-8 mr-16"
-                                    />
+                                    <img src={searchIcon} className="w-8 h-8 mr-16" />
                                 </div>
 
                                 <input
-
                                     placeholder="Search"
-                                    className="
-                    flex-1
-                    bg-transparent
-                    px-4
-                    text-sm
-                    placeholder-gray-600
-                    focus:outline-none
-                    focus:ring-0
-                  "
+                                    className="flex-1 bg-transparent px-4 text-sm placeholder-gray-600 focus:outline-none focus:ring-0"
                                     onChange={(e) =>
-                                        tableRef.current?.setSearch(
-                                            e.target.value
-                                        )
+                                        tableRef.current?.setSearch(e.target.value)
                                     }
                                 />
                             </div>
                         </div>
 
-                        {/* ===== TABLE ===== */}
                         <div className="flex overflow-hidden mt-2 h-96">
-                            <DataTable
+                            <AtaDataTable
                                 ref={tableRef}
-                                columns={dashboardColumns}
-                                rows={filteredRows}
-                                includeActionColumn
+                                onRowsEditChange={setEditedRows}
+                                columns={generateAtaGroupColumn}
+                                rows={allRows}
                                 actionConfig={{ edit: true }}
-                                onEditClick={handleEditClick}
                             />
                         </div>
                     </div>
-
-
                 </div>
             </div>
 
-            <Footer />
-
-            {/* ===== ADD / EDIT MODAL (FORMIK) ===== */}
-            {editOpen && editForm && (
-                <FormikEditModal
-                    open={editOpen}
-                    title={originalRow ? "Edit Question" : "Add Question"}
-                    leftTitle="Question"
-                    fields={questionFieldsWithOptions}
-                    initialValues={editForm}
-                    onClose={() => setEditOpen(false)}
-                    onSubmit={handleSubmit}
-                />
-            )}
+            <Footer
+                buttons={[
+                    { label: "Reset", onClick: handleReset },
+                    { label: "Validate", onClick: handleSubmit },
+                ]}
+            />
         </div>
     );
 };

@@ -7,6 +7,8 @@
 //   isAdd:boolean
 // ) => {
 
+import { format } from "date-fns";
+
 //   const basePayload = {
 //     ...(originalRow ?? {}),
 
@@ -337,3 +339,72 @@ export const buildQuestionPayload = (
 
   return stripSnoIfAdd(payload, isAdd);
 };
+
+
+
+
+interface EditedRow {
+  ataCode?: string;
+  ataDescription?: string;
+  complexity?: number | string;
+  duration?: number | string;
+  S1?: number | string;
+  S2?: number | string;
+  S3?: number | string;
+  avaiableQuestion1?: number | string | null;
+  avaiableQuestion2?: number | string | null;
+  avaiableQuestion3?: number | string | null;
+}
+
+interface BuildAtaPhasePayloadParams {
+  registerAta: any;
+  editedRows: EditedRow[];
+  examPhase: string;
+  endDate: Date;
+  userId: string | number;
+}
+
+export const buildAtaPhasePayload = ({
+  registerAta,
+  editedRows,
+  examPhase,
+  endDate,
+  userId,
+}: BuildAtaPhasePayloadParams) => {
+  if (!registerAta || !examPhase||!endDate) return null;
+
+  const mappedDetails = editedRows.map((e) => ({
+    ataCode: e?.ataCode,
+    ataDescription: e?.ataDescription,
+    complexity: Number(e?.complexity ?? 0),
+    duration: Number(e?.duration ?? 0),
+    level1Question: Number(e?.S1 ?? 0),
+    level2Question: Number(e?.S2 ?? 0),
+    level3Question: Number(e?.S3 ?? 0),
+    avaiableQuestion1:
+      e?.avaiableQuestion1 != null ? Number(e.avaiableQuestion1) : null,
+    avaiableQuestion2:
+      e?.avaiableQuestion2 != null ? Number(e.avaiableQuestion2) : null,
+    avaiableQuestion3:
+      e?.avaiableQuestion3 != null ? Number(e.avaiableQuestion3) : null,
+  }));
+
+  const updatedAtaPhases = registerAta.ataPhases.map((phase: any) =>
+    phase.phase === examPhase
+      ? {
+          ...phase,
+          ataPhaseDetails: mappedDetails,
+          endDate: format(endDate, "dd-MM-yyyy"),
+        }
+      : phase
+  );
+
+  const { ataId, ...restRegisterAta } = registerAta;
+
+  return {
+    ...restRegisterAta,
+    ataPhases: updatedAtaPhases,
+    userId,
+  };
+};
+

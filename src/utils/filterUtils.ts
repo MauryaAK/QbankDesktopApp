@@ -38,3 +38,26 @@ export const applyLocalFilters = (
     })
   );
 };
+
+
+interface ValidateConfig {
+  fields: { key: string; label: string }[];
+  values: Record<string, any>;
+}
+
+export const validateRequiredFields = ({ fields, values }: ValidateConfig) => {
+  for (const field of fields) {
+    const value = values[field.key];
+
+    if (
+      value === undefined ||
+      value === null ||
+      value === ""
+    ) {
+      return `${field.label} is required`;
+    }
+  }
+  return "";
+};
+
+
