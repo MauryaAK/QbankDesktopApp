@@ -357,54 +357,72 @@ interface EditedRow {
 }
 
 interface BuildAtaPhasePayloadParams {
-  registerAta: any;
   editedRows: EditedRow[];
-  examPhase: string;
-  endDate: Date;
   userId: string | number;
+  filteredData: any
 }
 
 export const buildAtaPhasePayload = ({
-  registerAta,
   editedRows,
-  examPhase,
-  endDate,
+  filteredData,
   userId,
 }: BuildAtaPhasePayloadParams) => {
-  if (!registerAta || !examPhase||!endDate) return null;
+  if (!filteredData) return null;
 
   const mappedDetails = editedRows.map((e) => ({
-    ataCode: e?.ataCode,
+    ataCode: e?.ataCode || 0,
     ataDescription: e?.ataDescription,
-    complexity: Number(e?.complexity ?? 0),
-    duration: Number(e?.duration ?? 0),
     level1Question: Number(e?.S1 ?? 0),
     level2Question: Number(e?.S2 ?? 0),
     level3Question: Number(e?.S3 ?? 0),
-    avaiableQuestion1:
-      e?.avaiableQuestion1 != null ? Number(e.avaiableQuestion1) : null,
-    avaiableQuestion2:
-      e?.avaiableQuestion2 != null ? Number(e.avaiableQuestion2) : null,
-    avaiableQuestion3:
-      e?.avaiableQuestion3 != null ? Number(e.avaiableQuestion3) : null,
+    avaiableQuestion1: null,
+    avaiableQuestion2: null,
+    avaiableQuestion3: null,
   }));
 
-  const updatedAtaPhases = registerAta.ataPhases.map((phase: any) =>
-    phase.phase === examPhase
-      ? {
-          ...phase,
-          ataPhaseDetails: mappedDetails,
-          endDate: format(endDate, "dd-MM-yyyy"),
-        }
-      : phase
-  );
-
-  const { ataId, ...restRegisterAta } = registerAta;
+  const updatedAtaPhases = {
+    ataPhaseDetails: mappedDetails,
+    examDate: format(filteredData?.examDate, "dd-MM-yyyy"),
+    phase: filteredData?.examPhase?.value
+  }
 
   return {
-    ...restRegisterAta,
+    "aircraftType": filteredData?.aircraftType?.value,
+    "levelOfTraining": filteredData?.trainingType?.value,
+    "courseId": filteredData?.courseId?.value,
+    "courseName": filteredData?.courseName?.value,
+    "startDate": format(filteredData?.trainingStartDate, "dd-MM-yyyy"),
+    "endDate": format(filteredData?.trainingEndDate, "dd-MM-yyyy"),
     ataPhases: updatedAtaPhases,
     userId,
   };
 };
+
+export const buildRegisterCandidatePayload = (
+  originalRow: any | null,
+  form: any,
+  userId: number,
+  isAdd: boolean
+) => {
+  const payload = {
+    ...(originalRow ?? {}),
+    "ataGroupId": localStorage.getItem("ataId"),
+    "candidateName": form?.name,
+    "licenceNumber": form?.ameLicenseNo,
+    "dateOfBirth": format(form?.dob, 'dd-MM-yyyy'),
+    "conatctNumber": form?.contactNo,
+    "emailId": form?.emailId,
+    "image": form?.emailId,
+    "isActive": true,
+
+    userId,
+  };
+
+  return stripSnoIfAdd(payload, isAdd);
+};
+
+
+
+
+
 

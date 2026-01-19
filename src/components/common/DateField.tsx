@@ -126,7 +126,7 @@
 //             focus:ring-0
 //           "
 //         />
-        
+
 
 //         {/* CALENDAR DROPDOWN */}
 //         {open && (
@@ -413,17 +413,17 @@ const DateField: React.FC<DateFieldProps> = ({
               onChange={(date: any) => {
                 const selectedDate = value
                   ? setMinutes(
-                      setHours(date, value.getHours()),
-                      value.getMinutes()
-                    )
+                    setHours(date, value.getHours()),
+                    value.getMinutes()
+                  )
                   : date;
 
                 onChange(selectedDate);
                 setOpen(false);
               }}
               value={value}
-              minDate={minDate}
-              maxDate={maxDate}
+              // minDate={minDate}
+              // maxDate={maxDate}
               className="!w-[220px] text-xs"
               tileClassName="!p-1"
             />

@@ -1,3 +1,4 @@
+import { options } from "@fullcalendar/core/preact.js";
 
 const DASHBOARD_FILTER_FIELDS = [
     { key: "aircraftType", label: "Aircraft Type", type: "select" },
@@ -26,8 +27,8 @@ const GENERATE_ATA_GROUP = [
     },
     { key: "trainingStartDate", label: "Training Start Date", type: "date" },
     { key: "trainingEndDate", label: "Training End Date", type: "date" },
-    { key: "courseId", label: "Course ID", type: "select" },
-    { key: "courseName", label: "Course Name", type: "select" },
+    { key: "courseId", label: "Course ID", type: "select", isCreateAllowed: true },
+    { key: "courseName", label: "Course Name", type: "select", isCreateAllowed: true },
     { key: "examPhase", label: "Exam Phase", type: "select" },
     { key: "examDate", label: "Exam Date", type: "date" },
 ];
@@ -35,20 +36,21 @@ const GENERATE_ATA_GROUP = [
 const REGISTER_CANDIDATE_FILTER = [
     { key: "aircraftType", label: "Aircraft Type", type: "select" },
     {
-        key: "trainingType", label: "Training Type", type: "select"
+        key: "levelOfTraining", label: "Training Type", type: "select"
     },
     { key: "licenceNumber", label: "AME License No", type: "select" },
     { key: "emailId", label: "Email", type: "select" },
     { key: "courseId", label: "Course ID", type: "select" },
     { key: "courseName", label: "Course Name", type: "select" },
+     { key: "startDate", label: "Training Start Date", type: "date" },
     { key: "endDate", label: "Training End Date", type: "date" },
 ];
 
 const VALIDATE_QUESTION_PAPER = [
-    { key: "aircraftType", label: "Aircraft Type", type: "select" },
-    { key: "examPhase", label: " Exam Phase", type: "select" },
-    { key: "courseId", label: "Course ID", type: "select" },
-    { key: "examDate", label: "Exam Date", type: "date" },
+    { key: "aircraftType", label: "Aircraft Type", type: "select",options:[] },
+    { key: "courseId", label: "Course ID", type: "select",options:[] },
+    { key: "examPhase", label: " Exam Phase", type: "select",options:[] },
+    { key: "endDate", label: "Exam Date", type: "date",options:[] },
 ];
 
 

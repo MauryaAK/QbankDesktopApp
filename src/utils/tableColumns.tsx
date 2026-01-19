@@ -265,48 +265,22 @@ const generateAtaGroupColumn: GridColDef[] = [
     flex: 1,
   },
   {
-    field: "complexity",
-    headerName: "Complexity",
-    flex: 1.5,
-
-    editable: true,          // 🔑 REQUIRED
-    type: "singleSelect",    // 🔑 REQUIRED
-
-    valueOptions: [
-      { label: "1", value: 1 },
-      { label: "2", value: 2 },
-      { label: "3", value: 3 },
-    ],
-  },
-
-
-  {
-    type: 'number',
-    field: "duration",
-    headerName: "Duration (Hrs)",
-    flex: 1.5,
-    editable: true
-  },
-  {
-    type: 'number',
     field: "S1",
     headerName: "S1",
     flex: 1,
-    editable: false
+    editable: true
   },
   {
-    type: 'number',
     field: "S2",
     headerName: "S2",
     flex: 1,
-    editable: false
+    editable: true
   },
   {
-    type: 'number',
     field: "S3",
     headerName: "S3",
     flex: 1,
-    editable: false
+    editable: true
   },
 ];
 
@@ -314,53 +288,53 @@ const registerCandidate: GridColDef[] = [
   {
     field: "id",
     headerName: "S.NO",
-    width: 70,
+    width: 60,
   },
 
   {
     field: "aircraftType",
     headerName: "Aircraft Type",
-    flex: 1.5,
+    flex: 1.2,
   },
   {
-    field: "courseID",
+    field: "courseId",
     headerName: "Course ID",
     flex: 1.2,
   },
   {
-    field: "training",
+    field: "levelOfTraining",
     headerName: "Training",
-    flex: 1,
+    flex: .8,
   },
   {
-    field: "start",
+    field: "startDate",
     headerName: "Start",
     flex: 1,
   },
   {
-    field: "end",
+    field: "endDate",
     headerName: "End",
     flex: 1,
   },
   {
-    field: "emeLicenseNo",
+    field: "licenceNumber",
     headerName: "AME License No",
-    flex: 2,
+    flex: 1.5,
   },
   {
-    field: "name",
+    field: "candidateName",
     headerName: "Name",
     flex: 1,
   },
   {
-    field: "email",
+    field: "emailId",
     headerName: "Email Id",
-    flex: 1,
+    flex: 1.4,
   },
   {
     field: "photo",
     headerName: "Photo",
-    flex: 1,
+    flex: .7,
   },
 ];
 
@@ -379,13 +353,13 @@ const generateExamPaper: GridColDef[] = [
   {
     field: "candidate",
     headerName: "Candidate",
-     flex: 1,
+    flex: 1,
   },
-  
+
 ];
 
 export {
   dashboardColumns, dosDontMaster, machineMaster, ataMaster,
   aircraftMaster, userManagement, roleManagement, generateAtaGroupColumn,
-  dashboardCandidateColumns, registerCandidate,generateExamPaper
+  dashboardCandidateColumns, registerCandidate, generateExamPaper
 };

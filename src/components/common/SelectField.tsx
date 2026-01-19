@@ -4,6 +4,7 @@ import Select, {
   components,
   ValueContainerProps,
 } from "react-select";
+import CreatableSelect from "react-select/creatable";
 
 /* ================= COMMON TYPES ================= */
 
@@ -20,6 +21,7 @@ interface Props {
   options: Option[];
   onChange: (val: Option | null) => void;
   onClickPlus?: () => void;
+  allowCreate?: boolean;
 }
 
 const styles = {
@@ -54,9 +56,11 @@ const SelectField: React.FC<Props> = ({
   value,
   options,
   onChange,
-  onClickPlus
+  onClickPlus,
+  allowCreate = false,
 
 }) => {
+  const SelectComponent = allowCreate ? CreatableSelect : Select;
   return (
     <div className="flex items-center gap-2">
       {label && (
@@ -81,12 +85,22 @@ const SelectField: React.FC<Props> = ({
 
 
       <div className="w-full">
-        <Select
+        <SelectComponent
           value={value}
           options={options}
           onChange={onChange}
           styles={styles}
           placeholder="Select"
+          onCreateOption={
+            allowCreate
+              ? (inputValue: string) => {
+                onChange({
+                  label: inputValue,
+                  value: inputValue,
+                });
+              }
+              : undefined
+          }
           isClearable
         />
       </div>

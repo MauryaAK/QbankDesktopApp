@@ -198,11 +198,198 @@
 // };
 
 // export default EditModalRenderer;
+
+
+
+// import Select from "react-select";
+// import { useFormikContext } from "formik";
+// import Checkbox from "../Checkbox";
+// import ToggleRadio from "../ToggleRadio";
+// import { FieldSchema } from "./editModal.types";
+
+// interface Props {
+//   fields: FieldSchema[];
+//   values: Record<string, any>;
+//   onChange: (name: string, value: any) => void;
+//   readOnly?: boolean;
+// }
+
+
+// const selectStyles = {
+//   control: (base: any, state: any) => ({
+//     ...base,
+//     minHeight: 32,
+//     height: 32,
+//     border: "none",
+//     boxShadow: "none",
+//     backgroundColor: state.isDisabled ? "#E5E5E5" : "transparent",
+//     borderRadius: 4,
+//   }),
+
+//   menuList: (base: any) => ({
+//     ...base,
+//     maxHeight: 200,     // height limit
+//     overflowY: "auto",  // 🔥 SCROLL ENABLED
+//   }),
+//   valueContainer: (base: any) => ({
+//     ...base,
+//     padding: "0 8px",
+//   }),
+
+//   singleValue: (base: any) => ({
+//     ...base,
+//     color: "#000",
+//     fontSize: "13px",
+//   }),
+
+//   indicatorsContainer: (base: any) => ({
+//     ...base,
+//     height: 32,
+//   }),
+
+//   indicatorSeparator: () => ({
+//     display: "none",
+//   }),
+
+//   /* ===== DROPDOWN MENU ===== */
+//   menu: (base: any) => ({
+//     ...base,
+//     marginTop: 4,
+//     borderRadius: 6,
+//     overflow: "hidden",
+//   }),
+
+//   /* ===== DROPDOWN ITEM ===== */
+//   option: (base: any, state: any) => ({
+//     ...base,
+//     fontSize: "13px",
+//     cursor: "pointer",
+//     color: state.isSelected || state.isFocused ? "#fff" : "#000",
+
+//     background: state.isSelected
+//       ? "linear-gradient(90deg, #DA0E29 0%, #740716 100%)"
+//       : state.isFocused
+//         ? "linear-gradient(90deg, #E73A4D 0%, #9A0F22 100%)"
+//         : "transparent",
+
+//     ":active": {
+//       background: "linear-gradient(90deg, #DA0E29 0%, #740716 100%)",
+//     },
+//   }),
+// };
+
+// const EditModalRenderer = ({
+//   fields,
+//   values,
+//   onChange,
+//   readOnly,
+// }: Props) => {
+//   const { errors, touched } = useFormikContext<any>();
+
+//   return (
+//     <div className="space-y-3">
+//       {fields.map((field) => {
+//         const error:any = touched[field.name] && errors[field.name];
+//         const isDisabled =
+//           typeof field.disabled === "function"
+//             ? field.disabled(values)
+//             : field.disabled;
+
+//         return (
+//           <div key={field.name} className="relative py-2">
+//             <div className="flex items-center min-h-[34px]">
+//               <div className="w-[2px] h-5 bg-[#C7A35D] mx-2 rounded-tr-md rounded-br-md" />
+
+//               <div className="w-[130px] text-sm font-medium">
+//                 {field.label}
+//                 {field.required && " *"}
+//               </div>
+//               <div className="w-[2px] h-5 bg-[#C7A35D] mx-3" />
+
+//               <div className="flex-1">
+//                 {(field.type === "text" ||
+//                   field.type === "number") && (
+//                     <input
+//                       type={field.type}
+//                       value={values[field.name] ?? ""}
+//                       disabled={isDisabled}
+//                       onChange={(e) =>
+//                         onChange(field.name, e.target.value)
+//                       }
+//                       className={`
+//                       w-full h-8 px-2 bg-transparent outline-none text-sm
+//                       ${isDisabled ? "text-gray-500 cursor-not-allowed" : ""}
+//                     `}
+//                     />
+//                   )}
+
+//                 {field.type === "select" && (
+//                   <Select
+//                     value={field.options?.find(
+//                       (o) => o.value === values[field.name]
+//                     )}
+//                     options={field.options}
+//                     onChange={(o: any) =>
+//                       onChange(field.name, o?.value)
+//                     }
+//                     styles={selectStyles}
+//                     isDisabled={isDisabled}
+//                     isSearchable={false}
+//                   />
+//                 )}
+
+//                 {field.type === "checkbox" && (
+//                   <Checkbox
+//                     disabled={isDisabled}
+//                     checked={!!values[field.name]}
+//                     onChange={(v) =>
+//                       onChange(field.name, v)
+//                     }
+//                   />
+//                 )}
+
+//                 {field.type === "toggle" && (
+//                   <ToggleRadio
+//                     disabled={isDisabled}
+//                     checked={!!values[field.name]}
+//                     onChange={(v) =>
+//                       onChange(field.name, v)
+//                     }
+//                   />
+//                 )}
+//               </div>
+//             </div>
+
+//             {error && !isDisabled && (
+//               <div className="text-xs text-red-600 ml-[160px] mt-1">
+//                 {error}
+//               </div>
+//             )}
+
+//             <div className="absolute left-0 right-0 bottom-1 h-[1px] bg-[#C7A35D]" />
+//           </div>
+//         );
+//       })}
+//     </div>
+//   );
+// };
+
+// export default EditModalRenderer;
+
+
+
+
+
 import Select from "react-select";
 import { useFormikContext } from "formik";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import { FaRegCalendarAlt } from "react-icons/fa";
+
 import Checkbox from "../Checkbox";
 import ToggleRadio from "../ToggleRadio";
 import { FieldSchema } from "./editModal.types";
+import { format } from "date-fns";
 
 interface Props {
   fields: FieldSchema[];
@@ -210,7 +397,6 @@ interface Props {
   onChange: (name: string, value: any) => void;
   readOnly?: boolean;
 }
-
 
 const selectStyles = {
   control: (base: any, state: any) => ({
@@ -222,57 +408,50 @@ const selectStyles = {
     backgroundColor: state.isDisabled ? "#E5E5E5" : "transparent",
     borderRadius: 4,
   }),
-
   menuList: (base: any) => ({
     ...base,
-    maxHeight: 200,     // height limit
-    overflowY: "auto",  // 🔥 SCROLL ENABLED
+    maxHeight: 200,
+    overflowY: "auto",
   }),
   valueContainer: (base: any) => ({
     ...base,
     padding: "0 8px",
   }),
-
   singleValue: (base: any) => ({
     ...base,
     color: "#000",
     fontSize: "13px",
   }),
-
   indicatorsContainer: (base: any) => ({
     ...base,
     height: 32,
   }),
-
-  indicatorSeparator: () => ({
-    display: "none",
-  }),
-
-  /* ===== DROPDOWN MENU ===== */
+  indicatorSeparator: () => ({ display: "none" }),
   menu: (base: any) => ({
     ...base,
     marginTop: 4,
     borderRadius: 6,
     overflow: "hidden",
   }),
-
-  /* ===== DROPDOWN ITEM ===== */
   option: (base: any, state: any) => ({
     ...base,
     fontSize: "13px",
     cursor: "pointer",
     color: state.isSelected || state.isFocused ? "#fff" : "#000",
-
     background: state.isSelected
       ? "linear-gradient(90deg, #DA0E29 0%, #740716 100%)"
       : state.isFocused
         ? "linear-gradient(90deg, #E73A4D 0%, #9A0F22 100%)"
         : "transparent",
-
     ":active": {
       background: "linear-gradient(90deg, #DA0E29 0%, #740716 100%)",
     },
   }),
+};
+
+const formatDate = (date?: Date | null) => {
+  if (!date) return "";
+  return format(date, "MM-dd-yy");
 };
 
 const EditModalRenderer = ({
@@ -286,11 +465,12 @@ const EditModalRenderer = ({
   return (
     <div className="space-y-3">
       {fields.map((field) => {
-        const error:any = touched[field.name] && errors[field.name];
+        const error: any = touched[field.name] && errors[field.name];
         const isDisabled =
           typeof field.disabled === "function"
             ? field.disabled(values)
             : field.disabled;
+
 
         return (
           <div key={field.name} className="relative py-2">
@@ -301,25 +481,27 @@ const EditModalRenderer = ({
                 {field.label}
                 {field.required && " *"}
               </div>
+
               <div className="w-[2px] h-5 bg-[#C7A35D] mx-3" />
 
-              <div className="flex-1">
-                {(field.type === "text" ||
-                  field.type === "number") && (
-                    <input
-                      type={field.type}
-                      value={values[field.name] ?? ""}
-                      disabled={isDisabled}
-                      onChange={(e) =>
-                        onChange(field.name, e.target.value)
-                      }
-                      className={`
+              <div className="flex-1 relative">
+                {/* TEXT / NUMBER */}
+                {(field.type === "text" || field.type === "number") && (
+                  <input
+                    type={field.type}
+                    value={values[field.name] ?? ""}
+                    disabled={isDisabled}
+                    onChange={(e) =>
+                      onChange(field.name, e.target.value)
+                    }
+                    className={`
                       w-full h-8 px-2 bg-transparent outline-none text-sm
                       ${isDisabled ? "text-gray-500 cursor-not-allowed" : ""}
                     `}
-                    />
-                  )}
+                  />
+                )}
 
+                {/* SELECT */}
                 {field.type === "select" && (
                   <Select
                     value={field.options?.find(
@@ -335,6 +517,7 @@ const EditModalRenderer = ({
                   />
                 )}
 
+                {/* CHECKBOX */}
                 {field.type === "checkbox" && (
                   <Checkbox
                     disabled={isDisabled}
@@ -345,6 +528,7 @@ const EditModalRenderer = ({
                   />
                 )}
 
+                {/* TOGGLE */}
                 {field.type === "toggle" && (
                   <ToggleRadio
                     disabled={isDisabled}
@@ -352,6 +536,57 @@ const EditModalRenderer = ({
                     onChange={(v) =>
                       onChange(field.name, v)
                     }
+                  />
+                )}
+
+                {/* DATE FIELD */}
+                {field.type === "date" && (
+                  <div className="relative">
+                    <div
+                      className={`flex items-center h-8 px-2 text-sm cursor-pointer
+                        ${isDisabled ? "text-gray-500 cursor-not-allowed" : ""}
+                      `}
+                      onClick={() => {
+                        if (!isDisabled) {
+                          onChange(
+                            `${field.name}__open`,
+                            !values[`${field.name}__open`]
+                          );
+                        }
+                      }}
+                    >
+                      <span className="flex-1">
+                        {formatDate(values[field.name]) || "Select date"}
+                      </span>
+                      <FaRegCalendarAlt className="text-gray-600 text-sm" />
+                    </div>
+
+                    {values[`${field.name}__open`] && !isDisabled && (
+                      <div className="absolute z-50 mt-1">
+                        <Calendar
+                          value={values[field.name] ?? null}
+                          onChange={(date) => {
+                            onChange(field.name, date);
+                            onChange(`${field.name}__open`, false);
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* FILE */}
+                {field.type === "file" && (
+                  <input
+                    type="file"
+                    disabled={isDisabled}
+                    onChange={(e) =>
+                      onChange(field.name, e.target.files?.[0] ?? null)
+                    }
+                    className={`
+                      w-full text-sm
+                      ${isDisabled ? "cursor-not-allowed" : ""}
+                    `}
                   />
                 )}
               </div>

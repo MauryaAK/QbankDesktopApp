@@ -61,6 +61,7 @@ import { SelectField } from "./SelectField";
 import InputField from "./InputField";
 import DateField from "./DateField";
 import { FilterField } from "./filterTypes";
+import { format, parse } from "date-fns";
 
 
 interface FieldMappingConfig {
@@ -132,7 +133,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({
 
   /* ===== FIELD RENDERER ===== */
   const renderField = (field: FilterField) => {
+
     switch (field.type) {
+
       case "select":
         if (field.key === "examPhase") {
           return (
@@ -174,17 +177,28 @@ const FilterSection: React.FC<FilterSectionProps> = ({
           />
         );
 
-      case "date":
+      case "date": {
+        const parsedDate = filters[field.key]
+          ? parse(filters[field.key], "dd-MM-yyyy", new Date())
+          : null;
+
         return (
           <DateField
+            maxDate={null}
+            minDate={null}
             key={field.key}
             label={field.label}
-            value={filters[field.key] ?? null}
+            value={parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : null}
             onChange={(date) =>
-              setFilters((prev) => ({ ...prev, [field.key]: date }))
+              setFilters((prev) => ({
+                ...prev,
+                [field.key]: date ? format(date, "dd-MM-yyyy") : "",
+              }))
             }
           />
         );
+      }
+
       default:
         return null;
     }

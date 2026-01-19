@@ -26,7 +26,9 @@ export type FieldType =
   | "select"
   | "checkbox"
   | "checkbox-group"
-  | "toggle";
+  | "toggle"
+  |'date'
+  |'file';
 
 export interface FieldOption {
   label: string;

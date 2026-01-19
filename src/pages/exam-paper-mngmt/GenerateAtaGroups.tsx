@@ -542,10 +542,8 @@ const GenerateAtaGroups = () => {
         if (!getCurrentRegisterAta || !filters?.examPhase?.value) return null;
 
         return buildAtaPhasePayload({
-            registerAta: getCurrentRegisterAta,
             editedRows: getEditedRows,
-            examPhase: filters.examPhase.value,
-            endDate: filters.examDate,
+            filteredData: filters,
             userId,
         });
     }, [filters, getCurrentRegisterAta, getEditedRows, userId]);
@@ -564,7 +562,7 @@ const GenerateAtaGroups = () => {
     };
 
     const handleFields = (values: any) => {
-        if (values?.trainingType && values?.aircraftType) {
+        if (values.trainingStartDate && values.trainingEndDate) {
             const a = registeredAta.data?.atas?.find((e: any) => {
                 const startDate = parse(e.startDate, "dd-MM-yyyy", new Date());
                 const endDate = parse(e.endDate, "dd-MM-yyyy", new Date());
@@ -592,13 +590,6 @@ const GenerateAtaGroups = () => {
                 return;
             }
         }
-
-        if (values?.courseName) {
-            const { courseName, courseId, ...rest } = values;
-            setFilters(rest);
-            return;
-        }
-
         setFilters(values);
     };
 
@@ -632,14 +623,14 @@ const GenerateAtaGroups = () => {
                     label: a.aircraftType,
                     value: a.aircraftType,
                 })),
-            courseId: registeredAtas.map((a: any) => ({
-                label: a.courseName,
-                value: a.courseId,
-            })),
-            courseName: registeredAtas.map((a: any) => ({
-                label: a.courseId,
-                value: a.courseName,
-            })),
+            // courseId: registeredAtas.map((a: any) => ({
+            //     label: a.courseName,
+            //     value: a.courseId,
+            // })),
+            // courseName: registeredAtas.map((a: any) => ({
+            //     label: a.courseId,
+            //     value: a.courseName,
+            // })),
             trainingType: trainingTypeOptions,
             examPhase: getPhaseValues,
         };

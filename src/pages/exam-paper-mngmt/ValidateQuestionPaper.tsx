@@ -1,8 +1,6 @@
-
-
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { addDays } from "date-fns";
+import { parse } from "date-fns";
 import toast from "react-hot-toast";
 
 import { DataTableRef } from "../../components/DataTable";
@@ -13,13 +11,9 @@ import AlertModal from "../../components/common/AlertModal/AlertModal";
 import Loader from "../../components/common/Loader";
 
 import {
-    GENERATE_ATA_GROUP,
-    trainingTypeOptions,
     VALIDATE_QUESTION_PAPER,
 } from "../../utils/filterFields";
 import { generateAtaGroupColumn } from "../../utils/tableColumns";
-import { buildAtaPhasePayload } from "../../utils/permissions/buildPayloads";
-import { validateRequiredFields } from "../../utils/filterUtils";
 import { withRowId } from "../../utils/withRowId";
 
 import {
@@ -32,43 +26,20 @@ import { useAlert } from "../../hooks/useAlert";
 
 import searchIcon from "../../assets/searchIcon.svg";
 import questionBnkIcon from "../../assets/questionBnkIcon.svg";
+import { buildFilterFieldsWithOptions } from "../../utils/methods";
 
-/* ================= HELPERS ================= */
 
-const getUniqueOptions = (rows: any[], key: string) => {
-    const set = new Set<any>();
-
-    rows.forEach((row) => {
-        const value = row[key];
-        if (value !== null && value !== undefined && value !== "") {
-            set.add(value);
-        }
-    });
-
-    return Array.from(set).map((val) => ({
-        label: String(val),
-        value: val,
-    }));
-};
-
-const ValidateQuestionPaper = () => {
+const GenerateAtaGroups = () => {
     const tableRef = useRef<DataTableRef>(null);
-
     const { alert, showAlert, hideAlert } = useAlert();
     const userId = useAppSelector((s) => s.auth.user?.id);
 
-    const [filters, setFilters] = useState<Record<string, any>>({
-        trainingStartDate: new Date(),
-        trainingEndDate: addDays(new Date(), 1),
-        examDate: new Date(),
-    });
-
+    const [filters, setFilters] = useState<Record<string, any>>({});
     const [getEditedRows, setEditedRows] = useState<any[]>([]);
-    const [getPhaseValues, setPhaseValues] = useState<any[]>([]);
-    const [getCurrentRegisterAta, setCurrentRegisterAta] = useState<any>({});
+    const [filterFields, setFilterFields] = useState<any>(VALIDATE_QUESTION_PAPER);
+    const [getTableData, setTableData] = useState<any[]>([]);
     const [filterKey, setFilterKey] = useState<number>(0);
 
-    /* ================= ERROR ================= */
 
     const showError = (message: string) => {
         showAlert({
@@ -80,41 +51,12 @@ const ValidateQuestionPaper = () => {
         });
     };
 
-    /* ================= VALIDATION ================= */
 
-    const validator = () => {
-        const fieldError = validateRequiredFields({
-            fields: GENERATE_ATA_GROUP,
-            values: filters,
-        });
-
-        if (fieldError) {
-            showError(fieldError);
-            return false;
-        }
-
-        if (getEditedRows.length === 0) {
-            showError("Enter ETA Details");
-            return false;
-        }
-
-        return true;
-    };
-
-    /* ================= MEMO ================= */
-
-    const minMax = useMemo(() => ({ min: addDays(new Date(), -120), max: addDays(new Date(), 120), }), []);
-
-
-    /* ================= API ================= */
-
-    const qetAtaForVerificationQuery: any = useQuery({
+    const getAtaForVerificationQuery: any = useQuery({
         queryKey: ["getAtaForVerification", userId],
         queryFn: getAtaForVerification,
         enabled: !!userId,
     });
-
-
 
     const mutation = useMutation({
         mutationFn: generateAtaGroup,
@@ -127,27 +69,11 @@ const ValidateQuestionPaper = () => {
         },
     });
 
-    /* ================= LOADER (ONLY API CALLS) ================= */
 
     const isLoading =
-        qetAtaForVerificationQuery.isLoading ||
+        getAtaForVerificationQuery.isLoading ||
         mutation.isPending;
 
-    /* ================= PAYLOAD ================= */
-
-    const payload = useMemo(() => {
-        if (!getCurrentRegisterAta || !filters?.examPhase?.value) return null;
-
-        return buildAtaPhasePayload({
-            registerAta: getCurrentRegisterAta,
-            editedRows: getEditedRows,
-            examPhase: filters.examPhase.value,
-            endDate: filters.examDate,
-            userId,
-        });
-    }, [filters, getCurrentRegisterAta, getEditedRows, userId]);
-
-    /* ================= HANDLERS ================= */
 
     const handleReset = () => {
         setFilters({});
@@ -155,50 +81,70 @@ const ValidateQuestionPaper = () => {
     };
 
     const handleSubmit = () => {
-        if (validator()) {
-            mutation.mutate(payload);
-        }
     };
 
-    const handleFields = (values: any) => {
-        setFilters(values);
-    };
-
-    /* ================= TABLE ================= */
 
     const allRows = useMemo(() => {
-        const rows = qetAtaForVerificationQuery?.data?.atas ?? [];
+        const rows = getTableData ?? [];
         return withRowId(
             rows.map((row: any) => ({
                 ...row,
-                avaiableQuestion1: row.avaiableQuestion1 ?? 0,
-                avaiableQuestion2: row.avaiableQuestion2 ?? 0,
-                avaiableQuestion3: row.avaiableQuestion3 ?? 0,
-                complexity: 0,
-                duration: 0,
-                S1: 0,
-                S2: 0,
-                S3: 0,
+                S1: row.level1Question,
+                S2: row.level2Question,
+                S3: row.level3Question,
             }))
         );
-    }, [qetAtaForVerificationQuery?.data?.atas]);
+    }, [getTableData]);
 
-    const optionMaps = useMemo(() => {
-        return {
-            trainingType: trainingTypeOptions,
-            examPhase: getPhaseValues,
-        };
-    }, [getPhaseValues]);
+    const handleFields = (v: any) => {
+        const courseId = v?.courseId?.value;
 
-    const filterFieldsWithOptions: any = useMemo(() => {
-        return VALIDATE_QUESTION_PAPER.map((field) => ({
-            ...field,
-            options:
-                optionMaps[field.key] ??
-                getUniqueOptions(allRows, field.key),
-        }));
+        const phase = v?.examPhase?.value;
 
-    }, [allRows, optionMaps]);
+        const ata = getAtaForVerificationQuery?.data?.atas
+            ?.find((e: any) => e.courseId === courseId);
+
+        if (phase && ata) {
+            const p = ata.ataPhases?.find((x: any) => x.phase === phase);
+            setTableData(p?.ataPhaseDetails ?? []);
+            setFilters({ ...v, endDate: parse(p?.examDate, 'dd-MM-yyyy', new Date()) });
+        }
+        if (!courseId || !ata) return setFilters(v);
+
+        setFilterFields((prev: any[]) =>
+            prev.map((f) =>
+                f.key === "examPhase"
+                    ? {
+                        ...f,
+                        options: ata.ataPhases?.map((x: any) => ({
+                            label: `Phase ${x.phase}`,
+                            value: x.phase,
+                        })) ?? [],
+                    }
+                    : f
+            )
+        );
+        setFilters(v);
+    };
+
+
+
+
+
+
+    useEffect(() => {
+        const updatedFields = buildFilterFieldsWithOptions(
+            VALIDATE_QUESTION_PAPER,
+            getAtaForVerificationQuery?.data?.atas
+        );
+
+        setFilterFields(updatedFields);
+    }, [getAtaForVerificationQuery?.data?.atas]);
+
+
+
+
+
 
     return (
         <div className="h-screen flex flex-col ">
@@ -208,12 +154,11 @@ const ValidateQuestionPaper = () => {
             <div className="mx-20 mt-5">
                 <div>
                     <FilterSectionForExam
-                        minMaxDate={minMax}
                         filters={filters}
                         setFilters={handleFields}
                         key={filterKey}
-                        label="Question Paper Validation Form"
-                        fields={filterFieldsWithOptions}
+                        label="Generate ATA Groups"
+                        fields={filterFields}
                     />
 
                     <div className="flex flex-col flex-1 overflow-hidden">
@@ -247,7 +192,7 @@ const ValidateQuestionPaper = () => {
                                 ref={tableRef}
                                 onRowsEditChange={setEditedRows}
                                 columns={generateAtaGroupColumn}
-                                rows={allRows}
+                                rows={allRows || []}
                                 actionConfig={{ edit: true }}
                             />
                         </div>
@@ -258,12 +203,11 @@ const ValidateQuestionPaper = () => {
             <Footer
                 buttons={[
                     { label: "Reset", onClick: handleReset },
-                    { label: "Validate", onClick: handleSubmit },
+                    { label: "Generate ATA Group", onClick: handleSubmit },
                 ]}
             />
         </div>
     );
 };
 
-export default ValidateQuestionPaper;
-
+export default GenerateAtaGroups;

@@ -9,6 +9,7 @@ import DataTable, { DataTableRef } from "../../components/DataTable";
 import FilterSection from "../../components/common/FilterSection";
 import Footer from "../../components/Footer";
 import Loader from "../../components/common/Loader";
+import { format, isDate, parse } from "date-fns";
 
 import { DASHBOARD_FILTER_FIELDS, REGISTER_CANDIDATE_FILTER, trainingTypeOptions } from "../../utils/filterFields";
 import { dashboardColumns, registerCandidate } from "../../utils/tableColumns";
@@ -22,6 +23,8 @@ import {
     getAtaType,
     getQuestionListForQuestionPage,
     getCandidateMaster,
+    getGeneratedAta,
+    addEditCandidate,
 } from "../../api/ApiCollection";
 
 import { useAppSelector } from "../../hooks/reduxHooks";
@@ -29,30 +32,30 @@ import { withRowId } from "../../utils/withRowId";
 
 import FormikEditModal from "../../components/common/EditModal/FormikEditModal";
 import { FieldSchema } from "../../components/common/EditModal";
-import { buildQuestionPayload } from "../../utils/permissions/buildPayloads";
+import { buildQuestionPayload, buildRegisterCandidatePayload } from "../../utils/permissions/buildPayloads";
 import AlertModal from "../../components/common/AlertModal/AlertModal";
 import { useAlert } from "../../hooks/useAlert";
 import toast from "react-hot-toast";
 
 /* ================= TYPES ================= */
 
+
+
 type QuestionFormState = {
-    mode: "add" | "edit";
-    question: string;
+    mode: string;
+    courseId: string;
+    courseName: string;
     aircraftType: string;
-    ataCode: string;
-    complexity: string | number;
-    bookTitle: string;
-    chapter: string;
-    topic: string;
-    page: string | number;
-    answer1: string;
-    answer2: string;
-    answer3: string;
-    correctAnswer: string | number;
-    reason: string;
+    startDate: string;
+    endDate: string | number;
+    name: string;
+    ameLicenseNo: string;
+    dob: any;
+    contactNo: string | number;
+    emailId: string;
+    photo: string;
     isActive: boolean;
-} | null;
+};
 
 type FilterState = Record<string, any>;
 
@@ -74,24 +77,59 @@ const getUniqueOptions = (rows: any[], key: string) => {
     }));
 };
 
-const applyLocalFilters = (
-    rows: any[],
-    filters: FilterState
-) => {
+// const applyLocalFilters = (
+//     rows: any[],
+//     filters: FilterState
+// ) => {
+//     return rows.filter((row) =>
+//         Object.entries(filters).every(([key, filterValue]) => {
+//             if (!filterValue) return true;
+
+//             const actualFilterValue =
+//                 typeof filterValue === "object" &&
+//                     "value" in filterValue
+//                     ? filterValue.value
+//                     : filterValue;
+
+//             return (
+//                 String(row[key]) ===
+//                 String(actualFilterValue)
+//             );
+//         })
+//     );
+// };
+
+const normalizeDate = (val: any) => {
+    if (!val) return "";
+
+    // If Date object → format
+    if (isDate(val)) {
+        return format(val, "dd-MM-yyyy");
+    }
+
+    // If already string → return trimmed
+    if (typeof val === "string") {
+        return val.trim();
+    }
+
+    return String(val);
+};
+
+const applyLocalFilters = (rows: any[], filters: FilterState) => {
     return rows.filter((row) =>
         Object.entries(filters).every(([key, filterValue]) => {
             if (!filterValue) return true;
 
+            // Handle react-select values
             const actualFilterValue =
-                typeof filterValue === "object" &&
-                    "value" in filterValue
+                typeof filterValue === "object" && "value" in filterValue
                     ? filterValue.value
                     : filterValue;
 
-            return (
-                String(row[key]) ===
-                String(actualFilterValue)
-            );
+            const rowValue = normalizeDate(row[key]);
+            const filterVal = normalizeDate(actualFilterValue);
+
+            return rowValue === filterVal;
         })
     );
 };
@@ -99,43 +137,35 @@ const applyLocalFilters = (
 /* ================= FORM FIELD CONFIG ================= */
 
 const questionFields: FieldSchema[] = [
-    { name: "question", label: "Question", type: "text", required: true },
-
-    { name: "aircraftType", label: "Aircraft Type", type: "select", required: true },
-    { name: "ataCode", label: "ATA", type: "select", required: true },
-    { name: "complexity", label: "Complexity", type: "select", required: true },
-
-    { name: "bookTitle", label: "Book Title", type: "text", required: true },
-    { name: "chapter", label: "Chapter", type: "text", required: true },
-    { name: "topic", label: "Topic", type: "text", required: true },
-    { name: "page", label: "Page", type: "number", required: true },
-
-    { name: "answer1", label: "Answer A", type: "text", required: true },
-    { name: "answer2", label: "Answer B", type: "text", required: true },
-    { name: "answer3", label: "Answer C", type: "text", required: true },
-
-    { name: "correctAnswer", label: "Correct Answer", type: "select", required: true },
-    { name: "reason", label: "Reason", type: "text", required: true },
+    { name: "courseId", label: "Course ID", type: "select", required: true },
+    { name: "courseName", label: "Course Name", type: "text", required: true },
+    { name: "aircraftType", label: "Aircraft Type", type: "text", required: true },
+    { name: "startDate", label: "Training Start Date", type: "text", required: true },
+    { name: "endDate", label: "Training End Date", type: "text", required: true },
+    { name: "name", label: "Name", type: "text", required: true },
+    { name: "ameLicenseNo", label: "AME License NO", type: "number", required: true },
+    { name: "dob", label: "Date Of Birth", type: "date", required: true },
+    { name: "contactNo", label: "ContactNo", type: "number", required: true },
+    { name: "emailId", label: "Email ID", type: "text", required: true },
+    { name: "photo", label: "photo", type: "file", required: false },
     { name: "isActive", label: "Status", type: "toggle", required: true },
 ];
 
 /* ================= EMPTY FORM (ADD MODE) ================= */
 
-const EMPTY_QUESTION_FORM: QuestionFormState = {
+const EMPTY_REGISTER_FORM = {
     mode: "add",
-    question: "",
+    courseId: "",
+    courseName: "",
     aircraftType: "",
-    ataCode: "",
-    complexity: "",
-    bookTitle: "",
-    chapter: "",
-    topic: "",
-    page: "",
-    answer1: "",
-    answer2: "",
-    answer3: "",
-    correctAnswer: "",
-    reason: "",
+    startDate: "",
+    endDate: "",
+    name: "",
+    ameLicenseNo: "",
+    dob: "",
+    contactNo: "",
+    emailId: "",
+    photo: "",
     isActive: true,
 };
 
@@ -149,10 +179,11 @@ const RegisterCandidate = () => {
     /* ===== GLOBAL STATE ===== */
     const userId = useAppSelector((s) => s.auth.user?.id);
     const queryClient = useQueryClient();
-
+    const [filterKey, setFilterKey] = useState<number>(0);
     /* ===== LOCAL STATE ===== */
     const [filters, setFilters] =
         useState<FilterState>({});
+
     const [editOpen, setEditOpen] =
         useState<boolean>(false);
     const [editForm, setEditForm] =
@@ -164,9 +195,11 @@ const RegisterCandidate = () => {
 
     const getGeneratedAtaQuery: any = useQuery({
         queryKey: ["getGeneratedAta", userId],
-        queryFn: getQuestionListForQuestionPage,
+        queryFn: getGeneratedAta,
         enabled: !!userId,
     });
+
+
 
     const registerCandidatesQuery: any = useQuery({
         queryKey: ["getCandidateMaster", userId],
@@ -175,7 +208,7 @@ const RegisterCandidate = () => {
     });
 
     const mutation = useMutation({
-        mutationFn: addEditQuestion,
+        mutationFn: addEditCandidate,
         onSuccess: (result: any) => {
             if (result?.isError) {
                 showAlert({
@@ -186,7 +219,7 @@ const RegisterCandidate = () => {
                     onClose: hideAlert,
                 });
             } else {
-                toast.success("Question Added Successfully")
+                toast.success("Added Successfully")
             }
             queryClient.invalidateQueries({
                 queryKey: ["questionList"],
@@ -200,44 +233,56 @@ const RegisterCandidate = () => {
     const allRows = useMemo(
         () =>
             withRowId(
-                getGeneratedAtaQuery.data?.registeredAtas ?? []
+                registerCandidatesQuery.data?.registeredCandidates?.reverse() ?? []
             ),
-        [getGeneratedAtaQuery.data?.registeredAtas]
+        [registerCandidatesQuery.data?.registeredCandidates]
     );
 
     /* ================= OPTION MAPS ================= */
 
-    const optionMaps = useMemo(() => {
-        const registerCandidates = registerCandidatesQuery.data?.registeredCandidates ?? [];
-        const aircraftTypeOptions = registerCandidates.map((t) => ({
-            label: t.aircraftType,
-            value: t.aircraftType,
-        }))
-        const licenceNumber = registerCandidates.map((t) => ({
-            label: t.licenceNumber,
-            value: t.licenceNumber,
-        }))
-        const email = registerCandidates.map((t) => ({
-            label: t.emailId,
-            value: t.emailId,
-        }))
-        const courseId = registerCandidates.map((t) => ({
-            label: t.courseId,
-            value: t.courseId,
-        }))
-        const courseName = registerCandidates.map((t) => ({
-            label: t.courseName,
-            value: t.courseName,
-        }))
-        return {
-            aircraftType: aircraftTypeOptions,
-            trainingType: trainingTypeOptions,
-            emailId: email,
-            courseId: courseId,
-            courseName: courseName,
-            licenceNumber: licenceNumber
-        };
-    }, [registerCandidatesQuery.data]);
+const optionMaps = useMemo(() => {
+    const registeredAtas = getGeneratedAtaQuery.data?.registeredAtas ?? [];
+
+    /* ---------- COURSE OPTIONS ---------- */
+    const courseId = registeredAtas.map((t) => ({
+        label: t.courseId,
+        value: t.courseId,
+    }));
+
+    const startDate = registeredAtas.map((t) => ({
+        label: t.startDate,
+        value: t.startDate,
+    }));
+
+    const endDate = registeredAtas.map((t) => ({
+        label: t.endDate,
+        value: t.endDate,
+    }));
+
+    /* ---------- PHASE OPTIONS (NEW) ---------- */
+    const phaseSet = new Set<number>();
+
+    registeredAtas.forEach((ata) => {
+        ata.ataPhases?.forEach((p) => {
+            if (p?.phase !== undefined && p?.phase !== null) {
+                phaseSet.add(p.phase);
+            }
+        });
+    });
+
+    const phaseOptions = Array.from(phaseSet).map((phase) => ({
+        label: `Phase ${phase}`,
+        value: phase,
+    }));
+
+    return {
+        courseId,
+        levelOfTraining: trainingTypeOptions,
+        startDate,
+        endDate,
+        phase: phaseOptions, // ✅ ADD THIS
+    };
+}, [getGeneratedAtaQuery.data]);
 
     /* ================= FILTER FIELDS ================= */
 
@@ -286,9 +331,19 @@ const RegisterCandidate = () => {
     /* ================= EDIT / ADD ================= */
 
     const handleAddQuestion = () => {
-        setOriginalRow(null);
-        setEditForm(EMPTY_QUESTION_FORM);
-        setEditOpen(true);
+        if (getGeneratedAtaQuery.data?.registeredAtas?.length > 0) {
+            setOriginalRow(null);
+            setEditForm(EMPTY_REGISTER_FORM);
+            setEditOpen(true);
+        } else {
+            showAlert({
+                title: "Error",
+                message: <div className="font-bold">No Course Available</div>,
+                variant: "error",
+                showActionButtons: false,
+                onClose: hideAlert,
+            });
+        }
     };
 
     /* ================= SUBMIT ================= */
@@ -299,7 +354,7 @@ const RegisterCandidate = () => {
         const isAddMode =
             editForm.mode !== "edit";
 
-        const payload = buildQuestionPayload(
+        const payload = buildRegisterCandidatePayload(
             originalRow,
             values,
             userId,
@@ -322,6 +377,33 @@ const RegisterCandidate = () => {
         registerCandidatesQuery.isLoading ||
         mutation.isPending;
 
+
+    const handleEditClick = (row: any) => {
+        setOriginalRow(row);
+
+        setEditForm({
+            mode: "edit",
+            courseId: row.courseId,
+            courseName: row.courseName,
+            aircraftType: row.aircraftType,
+            startDate: row.startDate,
+            endDate: row.endDate,
+            name: row.candidateName,
+            ameLicenseNo: row.licenceNumber,
+            dob: parse(row.dateOfBirth, "dd-MM-yyyy", new Date()),
+            contactNo: row.conatctNumber,
+            emailId: row.emailId,
+            photo: "",
+            isActive: row.isActive
+        });
+
+        setEditOpen(true);
+    };
+
+    const handleReset = () => {
+        setFilters({});
+        setFilterKey(Math.random());
+    };
     /* ================= UI ================= */
 
     return (
@@ -330,6 +412,7 @@ const RegisterCandidate = () => {
             <AlertModal {...alert} />
             <div className="mx-20 mt-5">
                 <FilterSection
+                    key={filterKey}
                     applyLabel="Register New"
                     showActionButtons
                     onApply={handleAddQuestion}
@@ -382,8 +465,8 @@ const RegisterCandidate = () => {
                             columns={registerCandidate}
                             rows={filteredRows}
                             includeActionColumn
-                            actionConfig={{ questionStatus: true }}
-                            onQuestionStatusChange={() => { }}
+                            actionConfig={{ edit: true }}
+                            onEditClick={handleEditClick}
                         />
                     </div>
                 </div>
@@ -393,20 +476,21 @@ const RegisterCandidate = () => {
 
                 { label: "Download Excel", onClick: () => { } },
                 { label: "Bulk Registration", onClick: () => { } },
-                { label: "Reset", onClick: () => { } },
+                { label: "Reset", onClick: handleReset },
             ]} />
 
             {/* ===== ADD / EDIT MODAL ===== */}
             {editOpen && editForm && (
                 <FormikEditModal
+                    allValues={getGeneratedAtaQuery.data?.registeredAtas || []}
                     open={editOpen}
                     type={originalRow}
                     title={
                         originalRow
-                            ? "Edit Question"
-                            : "Add Question"
+                            ? "Edit Candidate"
+                            : "Register Candidate"
                     }
-                    leftTitle="Question"
+                    leftTitle="Register Candidate"
                     fields={questionFieldsWithOptions}
                     initialValues={editForm}
                     onClose={() => setEditOpen(false)}

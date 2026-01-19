@@ -59,7 +59,7 @@ const FilterSectionForExam: React.FC<FilterSectionForExamProps> = ({
 
         const option = {
             label: `Phase ${number + 1}`,
-            value: `phase${number + 1}`,
+            value: number + 1,
         };
 
         setExamPhaseOptions((prev) => [
@@ -82,6 +82,7 @@ const FilterSectionForExam: React.FC<FilterSectionForExamProps> = ({
                 if (field.key === "examPhase") {
                     return (
                         <SelectField
+
                             onClickPlus={() => handleGenerateExamPhase([...field.options, ...examPhaseOptions].length)}
                             key={field.key}
                             label={field.label}
@@ -96,6 +97,7 @@ const FilterSectionForExam: React.FC<FilterSectionForExamProps> = ({
                 }
                 return (
                     <SelectField
+                        allowCreate={field?.isCreateAllowed}
                         key={field.key}
                         label={field.label}
                         options={field.options || []}
@@ -124,8 +126,6 @@ const FilterSectionForExam: React.FC<FilterSectionForExamProps> = ({
                     <DateField
                         key={field.key}
                         label={field.label}
-                        minDate={field.key == "examDate" ? minMaxDate?.min : new Date()}
-                        maxDate={field.key == "examDate" ? minMaxDate?.max : addDays(new Date(), 120)}
                         value={filters[field.key] ?? null}
                         onChange={(val) =>
                             handleOnChange(val, field)

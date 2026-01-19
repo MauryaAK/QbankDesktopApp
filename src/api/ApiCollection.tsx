@@ -175,6 +175,10 @@ export const getAtaForExamGeneration = async () => {
   return axiosInstance.get("/Examination/GetAtaForExamGeneration")
 };
 
+export const addEditCandidate = async (payload) => {
+  return axiosInstance.post("/Examination/AddEditCandidate", payload)
+};
+
 
 
 

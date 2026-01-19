@@ -117,10 +117,9 @@ const AtaDataTable = forwardRef<DataTableRef, DataTableProps>(
     const [updatedValues, setUpdatedValues] = useState([])
 
 
-    const totalDuration = useMemo(() => updatedValues.reduce((sum, item) => sum + (item.duration ?? 0), 0), [updatedValues]);
-    const totalS1 = useMemo(() => updatedValues.reduce((sum, item) => sum + (item.S1 ?? 0), 0), [updatedValues]);
-    const totalS2 = useMemo(() => updatedValues.reduce((sum, item) => sum + (item.S2 ?? 0), 0), [updatedValues]);
-    const totalS3 = useMemo(() => updatedValues.reduce((sum, item) => sum + (item.S3 ?? 0), 0), [updatedValues]);
+    const totalS1 = useMemo(() => updatedValues.reduce((sum, item: any) => sum + (Number(item.S1) ?? 0), 0), [updatedValues]);
+    const totalS2 = useMemo(() => updatedValues.reduce((sum, item) => sum + (Number(item.S2) ?? 0), 0), [updatedValues]);
+    const totalS3 = useMemo(() => updatedValues.reduce((sum, item) => sum + (Number(item.S3) ?? 0), 0), [updatedValues]);
 
     const isMobile = useIsMobile();
     const apiRef = useGridApiRef();
@@ -226,34 +225,6 @@ const AtaDataTable = forwardRef<DataTableRef, DataTableProps>(
 
     const processRowUpdate = (newRow: any, oldRow: any) => {
       let updatedRow = { ...newRow };
-
-      const durationChanged = newRow.duration !== oldRow.duration;
-      const complexityChanged = newRow.complexity !== oldRow.complexity;
-
-      if (durationChanged || complexityChanged) {
-        const duration = Number(newRow.duration) || 0;
-
-        updatedRow = {
-          ...updatedRow,
-          S1: 0,
-          S2: 0,
-          S3: 0,
-        };
-
-        if (newRow.complexity === 1 || newRow.complexity === 0) {
-          updatedRow.S1 = duration;
-        }
-
-        if (newRow.complexity === 2) {
-          updatedRow.S2 = duration;
-        }
-
-        if (newRow.complexity === 3) {
-          updatedRow.S3 = duration;
-        }
-      }
-
-      // Track edited rows
       if (JSON.stringify(updatedRow) !== JSON.stringify(oldRow)) {
         setEditedRowsMap((prev) => {
           const updated = {
@@ -270,7 +241,6 @@ const AtaDataTable = forwardRef<DataTableRef, DataTableProps>(
       return updatedRow; // 🔑 REQUIRED
     };
 
-    /* ================= ACTION COLUMNS ================= */
 
     const actionColumns: GridColDef[] = includeActionColumn
       ? [
@@ -638,50 +608,35 @@ const AtaDataTable = forwardRef<DataTableRef, DataTableProps>(
             }}
           />
         </div>
-        <div className="h-6 w-full bg-[#FDF1D2] flex border border-gray-300 rounded-lg text-[11px] text-gray-600 font-normal">
-          <div className="h-full w-16 flex items-center justify-center  border-gray-300">
-           
+        {rows?.length > 0 && <div className="my-[1px] h-6 w-full bg-[#FDF1D2] flex border border-gray-300 rounded-lg text-[11px] text-gray-600 font-normal">
+          <div className="h-full w-[73%] flex px-10 items-center  border-gray-300 font-bold">
+            Total No Of Question
           </div>
+          <div className="w-[27%] flex flex-row justify-evenly items-center">
+            <div className="h-full w-16 flex items-center justify-center  border-gray-300 font-semibold text-gray-700">
+              {totalS1}
+            </div>
 
-          <div className="h-full w-24 flex items-center justify-center  border-gray-300">
-           
-          </div>
+            <div className="h-full w-16 flex items-center justify-center  border-gray-300 font-semibold text-gray-700">
+              {totalS2}
+            </div>
 
-          <div className="h-full flex-[2] flex items-center justify-center  border-gray-300">
-           
+            <div className="h-full w-16 flex items-center justify-center font-semibold text-gray-700">
+              {totalS3}
+            </div>
           </div>
+        </div>}
+        {rows?.length > 0 && <div className="h-6 w-full bg-[#FDF1D2] flex border border-gray-300 rounded-lg text-[11px] text-gray-600 font-normal">
+          <div className="h-full w-[73%] flex px-10 items-center  border-gray-300 font-bold">
+            Total Question
+          </div>
+          <div className="w-[27%] flex flex-row justify-evenly items-center">
+            <div className="h-full w-16 flex items-center justify-center  border-gray-300 font-semibold text-gray-700">
+              {totalS1 + totalS2 + totalS3}
+            </div>
 
-          <div className="h-full w-16 flex items-center justify-center  border-gray-300">
-           
           </div>
-
-          <div className="h-full w-16 flex items-center justify-center  border-gray-300">
-           
-          </div>
-
-          <div className="h-full w-16 flex items-center justify-center  border-gray-300">
-           
-          </div>
-
-          <div className="h-full flex-1 flex items-center justify-center  border-gray-300 font-medium text-gray-700 tracking-tight">
-          </div>
-
-          <div className="h-full flex-1 flex items-center justify-center font-bold text-black">
-            Total Duration -  {totalDuration}
-          </div>
-
-          <div className="h-full w-16 flex items-center justify-center  border-gray-300 font-semibold text-gray-700">
-            {totalS1}
-          </div>
-
-          <div className="h-full w-16 flex items-center justify-center  border-gray-300 font-semibold text-gray-700">
-            {totalS2}
-          </div>
-
-          <div className="h-full w-16 flex items-center justify-center font-semibold text-gray-700">
-            {totalS3}
-          </div>
-        </div>
+        </div>}
 
 
         <div className=" flex items-center justify-between px-3 pt-3 text-xs shrink-0 border-t border-gray-200">

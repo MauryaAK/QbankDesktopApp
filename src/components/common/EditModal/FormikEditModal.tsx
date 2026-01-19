@@ -3,6 +3,7 @@ import EditModalShell from "./EditModalShell";
 import EditModalRenderer from "./EditModalRenderer";
 import { FieldSchema } from "./editModal.types";
 import { buildYupSchema } from "./buildYupSchema";
+import AutoFillWatcher from "./AutoFillWatcher";
 
 interface Props {
   open: boolean;
@@ -14,7 +15,8 @@ interface Props {
   onClose: () => void;
   loading?: boolean;
   children?: React.ReactNode;
-  type?:boolean;
+  type?: boolean;
+  allValues?: any
 }
 
 const FormikEditModal = ({
@@ -27,7 +29,8 @@ const FormikEditModal = ({
   onClose,
   loading,
   children,
-  type
+  type,
+  allValues
 }: Props) => {
   return (
     <Formik
@@ -37,22 +40,25 @@ const FormikEditModal = ({
       onSubmit={onSubmit}
     >
       {(formik) => (
-        <EditModalShell
-          type={type}
-          open={open}
-          title={title}
-          leftTitle={leftTitle}
-          loading={loading}
-          onClose={onClose}
-          onSubmit={formik.submitForm}
-        >
-          <EditModalRenderer
-            fields={fields}
-            values={formik.values}
-            onChange={formik.setFieldValue}
-          />
-          {children}
-        </EditModalShell>
+        <>
+          {title == "Register Candidate" && <AutoFillWatcher formik={formik} allValues={allValues} />}
+          <EditModalShell
+            type={type}
+            open={open}
+            title={title}
+            leftTitle={leftTitle}
+            loading={loading}
+            onClose={onClose}
+            onSubmit={formik.submitForm}
+          >
+            <EditModalRenderer
+              fields={fields}
+              values={formik.values}
+              onChange={formik.setFieldValue}
+            />
+            {children}
+          </EditModalShell>
+        </>
       )}
     </Formik>
   );

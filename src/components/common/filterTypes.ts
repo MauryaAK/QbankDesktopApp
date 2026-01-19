@@ -10,6 +10,7 @@ export interface BaseFilterField {
 export interface SelectFilterField extends BaseFilterField {
   type: "select";
   options: { label: string; value: string }[];
+  isCreateAllowed?:boolean;
 }
 
 export interface InputFilterField extends BaseFilterField {

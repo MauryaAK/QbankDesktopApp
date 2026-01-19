@@ -246,6 +246,37 @@ interface Option {
     label: string;
     value: string;
 }
+const MENU_ORDER: string[] = [
+    "Role",
+    "User",
+    "AircraftType",
+    "ATA",
+    "Dos And Dont",
+    "Machine Master",
+
+    "Add Question",
+    "Check Question",
+    "Verify Question",
+
+    "Add ATA Groups",
+    "Register Candidates",
+    "Validate Questions",
+    "Generate Exam Papers",
+
+    "View Candidate Exam Status",
+    "Generate Hard Copy",
+    "Scan OMR Sheet",
+
+    "ATA Wise Performance - Overview",
+    "Question Wise Performance - Overview",
+    "Question Wise Performance - Candidate",
+    "Candidate Exam Activity Log",
+    "Examination Results",
+    "Report of Questions Added/Amended",
+    "Question ID List",
+    "Question Paper Validation Report",
+];
+
 
 /* ================= MENU → ROUTE MAP ================= */
 
@@ -282,13 +313,24 @@ const MENU_ROUTE_MAP: Record<string, Option> = {
 
 /* ================= HELPERS ================= */
 
-const buildOptionsFromPermission = (permissionName: string, permissions: any[]): Option[] => {
-    const section = permissions?.find((p) => p.permission === permissionName);
+const buildOptionsFromPermission = (
+    permissionName: string,
+    permissions: any[]
+): Option[] => {
+    const section = permissions?.find(
+        (p) => p.permission === permissionName
+    );
     if (!section) return [];
 
-    return section.permissionList
-        .filter((m: any) => m.isActive)
-        .map((m: any) => MENU_ROUTE_MAP[m.menu])
+    const activeMenus = new Set(
+        section.permissionList
+            .filter((m: any) => m.isActive)
+            .map((m: any) => m.menu)
+    );
+
+    return MENU_ORDER
+        .filter((menu) => activeMenus.has(menu))
+        .map((menu) => MENU_ROUTE_MAP[menu])
         .filter(Boolean);
 };
 
